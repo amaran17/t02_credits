@@ -47,7 +47,7 @@ export async function POST(request: Request) {
     if (!validCode) {
       return NextResponse.json({ error: '无效或已过期的邀请码' }, { status: 400 })
     }
-    await supabase.from('invite_codes').update({ used: true }).eq('id', validCode.id)
+    await supabase.from('invite_codes').update({ used: true, used_by: session.user.id }).eq('id', validCode.id)
   }
 
   // 创建 auth 用户

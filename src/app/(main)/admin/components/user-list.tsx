@@ -26,6 +26,8 @@ export function UserList() {
   const [users, setUsers] = useState<User[]>([])
   const [inviteCodes, setInviteCodes] = useState<InviteCode[]>([])
   const [showForm, setShowForm] = useState(false)
+  const [loading, setLoading] = useState(false)
+  const [loadingCodes, setLoadingCodes] = useState(false)
   const [formData, setFormData] = useState({
     email: '',
     name: '',
@@ -36,19 +38,23 @@ export function UserList() {
   const [error, setError] = useState('')
 
   const fetchUsers = async () => {
+    setLoading(true)
     const res = await fetch('/api/admin/users')
     if (res.ok) {
       const data = await res.json()
       setUsers(data)
     }
+    setLoading(false)
   }
 
   const fetchInviteCodes = async () => {
+    setLoadingCodes(true)
     const res = await fetch('/api/admin/invite-codes')
     if (res.ok) {
       const data = await res.json()
       setInviteCodes(data)
     }
+    setLoadingCodes(false)
   }
 
   useEffect(() => {
@@ -59,6 +65,7 @@ export function UserList() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setError('')
+    setLoading(true)
 
     const res = await fetch('/api/admin/users', {
       method: 'POST',
@@ -66,6 +73,7 @@ export function UserList() {
       body: JSON.stringify(formData),
     })
 
+    setLoading(false)
     if (res.ok) {
       setShowForm(false)
       setFormData({ email: '', name: '', role: 'manager', password: '', inviteCode: '' })
@@ -77,17 +85,21 @@ export function UserList() {
   }
 
   const generateInviteCode = async () => {
+    setLoadingCodes(true)
     const res = await fetch('/api/admin/invite-codes', { method: 'POST' })
     if (res.ok) {
       fetchInviteCodes()
     }
+    setLoadingCodes(false)
   }
 
   const revokeInviteCode = async (id: string) => {
+    setLoadingCodes(true)
     const res = await fetch(`/api/admin/invite-codes?id=${id}`, { method: 'DELETE' })
     if (res.ok) {
       fetchInviteCodes()
     }
+    setLoadingCodes(false)
   }
 
   const getCodeStatus = (code: InviteCode) => {
@@ -101,6 +113,9 @@ export function UserList() {
       {/* 用户列表 */}
       <div className="bg-white rounded-lg shadow p-6">
         <h2 className="text-lg font-semibold mb-4">用户列表</h2>
+        {loading ? (
+          <p className="text-gray-500 py-4 text-center">加载中...</p>
+        ) : (
         <div className="overflow-x-auto">
           <table className="w-full">
             <thead>
@@ -123,14 +138,18 @@ export function UserList() {
             </tbody>
           </table>
         </div>
+        )}
       </div>
 
       {/* 邀请码管理 */}
       <div className="bg-white rounded-lg shadow p-6">
         <div className="flex justify-between items-center mb-4">
           <h2 className="text-lg font-semibold">邀请码</h2>
-          <Button onClick={generateInviteCode}>生成邀请码</Button>
+          <Button onClick={generateInviteCode} disabled={loadingCodes}>生成邀请码</Button>
         </div>
+        {loadingCodes ? (
+          <p className="text-gray-500 py-4 text-center">加载中...</p>
+        ) : (
         <div className="overflow-x-auto">
           <table className="w-full">
             <thead>
@@ -169,6 +188,7 @@ export function UserList() {
             </tbody>
           </table>
         </div>
+        )}
       </div>
 
       {/* 创建用户表单 */}
@@ -222,7 +242,7 @@ export function UserList() {
               onChange={(e) => setFormData({ ...formData, password: e.target.value })}
               required
             />
-            <Button type="submit">创建</Button>
+            <Button type="submit" disabled={loading}>创建</Button>
           </form>
         )}
       </div>
