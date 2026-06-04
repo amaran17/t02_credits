@@ -3,13 +3,11 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { useSupabase } from '@/components/providers'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 
 export default function RegisterPage() {
   const router = useRouter()
-  const supabase = useSupabase()
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -23,38 +21,21 @@ export default function RegisterPage() {
     setLoading(true)
 
     // Determine role based on invite code
-    const isLeader = inviteCode === process.env.NEXT_PUBLIC_FIRST_LEADER_CODE || inviteCode === '2026GZZJ'
+    const isLeader = inviteCode === '2026GZZJ' || inviteCode === process.env.NEXT_PUBLIC_FIRST_LEADER_CODE
     const role = isLeader ? 'leader' : 'manager'
 
-    const { data, error } = await supabase.auth.signUp({
-      email,
-      password,
-      options: {
-        data: {
-          name,
-          role,
-        },
-      },
+    const res = await fetch('/api/auth/register', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password, name, role }),
     })
 
-    if (error) {
-      setError(error.message)
+    const data = await res.json()
+
+    if (!res.ok) {
+      setError(data.error || '注册失败')
       setLoading(false)
       return
-    }
-
-    if (data.user) {
-      const { error: profileError } = await supabase.from('profiles').insert({
-        id: data.user.id,
-        email,
-        name,
-        role: isLeader ? 'leader' : 'manager',
-      })
-      if (profileError) {
-        setError('创建账号失败，请重试')
-        setLoading(false)
-        return
-      }
     }
 
     router.push('/dashboard')
@@ -93,6 +74,7 @@ export default function RegisterPage() {
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           placeholder="••••••••"
+          minLength={6}
           required
         />
         <Input
