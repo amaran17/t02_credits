@@ -327,6 +327,9 @@ export function UserList() {
               清除筛选
             </Button>
           )}
+          <Button size="sm" variant="outline" onClick={handleExport}>
+            导出
+          </Button>
           <span className="text-gray-500 text-sm">
             {filteredUsers.length === users.length
               ? `共 ${users.length} 个用户`
