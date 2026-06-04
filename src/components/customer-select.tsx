@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { Customer } from '@/types'
+import { Input } from '@/components/ui/input'
 
 interface CustomerSelectProps {
   value: string
