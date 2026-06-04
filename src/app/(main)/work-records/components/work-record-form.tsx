@@ -31,7 +31,7 @@ interface FormData {
   support_units: string[]
   work_content: string
   work_date: string
-  work_categories: string[]
+  work_categories: string
 }
 
 export default function WorkRecordForm({ onSuccess }: WorkRecordFormProps) {
@@ -45,7 +45,7 @@ export default function WorkRecordForm({ onSuccess }: WorkRecordFormProps) {
     support_units: [],
     work_content: '',
     work_date: new Date().toISOString().split('T')[0],
-    work_categories: [],
+    work_categories: '',
   })
 
   const [naturalLanguage, setNaturalLanguage] = useState('')
@@ -147,7 +147,7 @@ export default function WorkRecordForm({ onSuccess }: WorkRecordFormProps) {
     // 验证必填字段
     if (!formData.project_name || !formData.customer_id || !formData.industry ||
         !formData.stage || !formData.customer_manager || !formData.support_role ||
-        !formData.work_content || !formData.work_date || formData.work_categories.length === 0) {
+        !formData.work_content || !formData.work_date || !formData.work_categories) {
       setError('请填写所有必填字段')
       return
     }
@@ -170,12 +170,14 @@ export default function WorkRecordForm({ onSuccess }: WorkRecordFormProps) {
     const weightMap = new Map(weightConfigs?.map(w => [w.work_category, w.weight]) || [])
     let work_weight = 0
 
-    for (const category of formData.work_categories) {
+    const workCategoriesArray = formData.work_categories ? [formData.work_categories] : []
+
+    for (const category of workCategoriesArray) {
       work_weight += weightMap.get(category) || 1
     }
 
     // 招投标额外权重
-    if (formData.work_categories.includes('招投标')) {
+    if (workCategoriesArray.includes('招投标')) {
       const { data: bidConfig } = await supabase
         .from('bid_weight_configs')
         .select('weight')
@@ -200,7 +202,7 @@ export default function WorkRecordForm({ onSuccess }: WorkRecordFormProps) {
         support_units: formData.support_units,
         work_content: formData.work_content,
         work_date: formData.work_date,
-        work_categories: formData.work_categories,
+        work_categories: workCategoriesArray,
         work_weight,
       })
 
@@ -219,7 +221,7 @@ export default function WorkRecordForm({ onSuccess }: WorkRecordFormProps) {
         support_units: [],
         work_content: '',
         work_date: new Date().toISOString().split('T')[0],
-        work_categories: [],
+        work_categories: '',
       })
       setNaturalLanguage('')
       onSuccess()
@@ -228,12 +230,10 @@ export default function WorkRecordForm({ onSuccess }: WorkRecordFormProps) {
     setSubmitting(false)
   }
 
-  const handleCategoryChange = (category: string, checked: boolean) => {
+  const handleCategoryChange = (category: string) => {
     setFormData(prev => ({
       ...prev,
-      work_categories: checked
-        ? [...prev.work_categories, category]
-        : prev.work_categories.filter(c => c !== category),
+      work_categories: category,
     }))
   }
 
@@ -383,17 +383,23 @@ export default function WorkRecordForm({ onSuccess }: WorkRecordFormProps) {
 
       {/* 工作分类 */}
       <div className="space-y-2">
-        <label className="block text-sm font-medium text-gray-700">工作分类（可多选）</label>
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
-          {WORK_CATEGORIES.map(category => (
-            <label key={category} className="flex items-center gap-1 text-sm">
+        <label className="block text-sm font-medium text-gray-700">工作分类</label>
+        <div className="flex flex-wrap gap-2">
+          {WORK_CATEGORIES.map(cat => (
+            <label key={cat} className={`px-3 py-1 rounded-full cursor-pointer ${
+              formData.work_categories === cat
+                ? 'bg-blue-600 text-white'
+                : 'bg-gray-100 hover:bg-gray-200'
+            }`}>
               <input
-                type="checkbox"
-                value={category}
-                checked={formData.work_categories.includes(category)}
-                onChange={(e) => handleCategoryChange(category, e.target.checked)}
+                type="radio"
+                name="work_category"
+                value={cat}
+                checked={formData.work_categories === cat}
+                onChange={() => handleCategoryChange(cat)}
+                className="hidden"
               />
-              {category}
+              {cat}
             </label>
           ))}
         </div>

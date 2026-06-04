@@ -14,7 +14,7 @@ export interface ParsedWorkRecord {
   support_units?: string[]
   work_content?: string
   work_date?: string
-  work_categories?: string[]
+  work_categories?: string
 }
 
 export async function parseWorkRecord(
