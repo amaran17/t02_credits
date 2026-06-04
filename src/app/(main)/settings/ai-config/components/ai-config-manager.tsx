@@ -145,7 +145,7 @@ export function AIConfigManager() {
           {PRESET_PROVIDERS.map((preset) => (
             <Button
               key={preset.provider}
-              variant={formData.provider === preset.provider ? 'default' : 'outline'}
+              variant={formData.provider === preset.provider ? 'primary' : 'outline'}
               size="sm"
               onClick={() => handlePresetClick(preset)}
             >
