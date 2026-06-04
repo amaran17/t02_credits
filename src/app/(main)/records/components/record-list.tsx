@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { WorkRecord, UserRole } from '@/types'
 
@@ -32,6 +32,7 @@ const CATEGORY_COLORS: Record<string, string> = {
 export default function RecordList({ currentUserId, role }: RecordListProps) {
   const [records, setRecords] = useState<WorkRecordWithCustomer[]>([])
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
   const [users, setUsers] = useState<Array<{ id: string; name: string }>>([])
 
   // Filters for leaders
@@ -39,8 +40,9 @@ export default function RecordList({ currentUserId, role }: RecordListProps) {
   const [endDate, setEndDate] = useState('')
   const [selectedUserId, setSelectedUserId] = useState('')
 
-  const fetchRecords = async () => {
+  const fetchRecords = useCallback(async () => {
     setLoading(true)
+    setError(null)
     const supabase = createClient()
 
     let query = supabase
@@ -53,7 +55,12 @@ export default function RecordList({ currentUserId, role }: RecordListProps) {
       query = query.eq('user_id', currentUserId)
     }
 
-    const { data } = await query
+    const { data, error: fetchError } = await query
+    if (fetchError) {
+      setError(fetchError.message)
+      setLoading(false)
+      return
+    }
     if (data) {
       let filtered = data as WorkRecordWithCustomer[]
 
@@ -73,7 +80,7 @@ export default function RecordList({ currentUserId, role }: RecordListProps) {
       setRecords(filtered)
     }
     setLoading(false)
-  }
+  }, [role, currentUserId, startDate, endDate, selectedUserId])
 
   const fetchUsers = async () => {
     const supabase = createClient()
@@ -90,7 +97,7 @@ export default function RecordList({ currentUserId, role }: RecordListProps) {
     if (role === 'leader') {
       fetchRecords()
     }
-  }, [startDate, endDate, selectedUserId])
+  }, [role, fetchRecords])
 
   return (
     <div className="space-y-6">
@@ -147,6 +154,11 @@ export default function RecordList({ currentUserId, role }: RecordListProps) {
       )}
 
       {/* Records list */}
+      {error && (
+        <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
+          加载失败: {error}
+        </div>
+      )}
       {loading ? (
         <div className="text-center py-12 text-gray-500">加载中...</div>
       ) : records.length === 0 ? (
