@@ -58,6 +58,7 @@ export async function GET(request: Request) {
       industry: record.industry,
       stage: record.stage,
       customer_manager: record.customer_manager,
+      support_role: record.support_role,
       support_units: (record.support_units || []).join(', '),
       work_content: record.work_content,
       work_categories: (record.work_categories || []).join(', '),
