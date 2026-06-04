@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation'
 import { useSupabase } from '@/components/providers'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
+import { createClient } from '@/lib/supabase/client'
 
 export default function LoginPage() {
   const router = useRouter()
@@ -20,7 +21,7 @@ export default function LoginPage() {
     setError('')
     setLoading(true)
 
-    const { error } = await supabase.auth.signInWithPassword({
+    const { data, error } = await supabase.auth.signInWithPassword({
       email,
       password,
     })
@@ -29,6 +30,23 @@ export default function LoginPage() {
       setError(error.message)
       setLoading(false)
       return
+    }
+
+    // 检查账号是否启用
+    if (data.user) {
+      const serverClient = createClient()
+      const { data: profile } = await serverClient
+        .from('profiles')
+        .select('is_active')
+        .eq('id', data.user.id)
+        .single()
+
+      if (profile && !profile.is_active) {
+        await supabase.auth.signOut()
+        setError('账号已被停用，请联系组长')
+        setLoading(false)
+        return
+      }
     }
 
     router.push('/dashboard')
