@@ -29,6 +29,7 @@ export function UserList() {
   const [showForm, setShowForm] = useState(false)
   const [loading, setLoading] = useState(false)
   const [loadingCodes, setLoadingCodes] = useState(false)
+  const [togglingId, setTogglingId] = useState<string | null>(null)
   const [formData, setFormData] = useState({
     email: '',
     name: '',
@@ -105,12 +106,19 @@ export function UserList() {
 
   const toggleStatus = async (userId: string, currentStatus: boolean) => {
     const newStatus = !currentStatus
-    await fetch('/api/admin/users', {
+    setTogglingId(userId)
+    const res = await fetch('/api/admin/users', {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ user_id: userId, is_active: newStatus }),
     })
-    fetchUsers()
+    if (res.ok) {
+      fetchUsers()
+    } else {
+      const data = await res.json()
+      setError(data.error || '状态更新失败')
+    }
+    setTogglingId(null)
   }
 
   const getCodeStatus = (code: InviteCode) => {
@@ -147,13 +155,14 @@ export function UserList() {
                   <td className="py-2 px-4">
                     <button
                       onClick={() => toggleStatus(user.id, user.is_active)}
+                      disabled={togglingId === user.id}
                       className={`px-2 py-1 rounded text-xs ${
                         user.is_active
                           ? 'bg-green-100 text-green-700 hover:bg-green-200'
                           : 'bg-red-100 text-red-700 hover:bg-red-200'
-                      }`}
+                      } ${togglingId === user.id ? 'opacity-50 cursor-not-allowed' : ''}`}
                     >
-                      {user.is_active ? '启用' : '停用'}
+                      {togglingId === user.id ? '处理中...' : user.is_active ? '启用' : '停用'}
                     </button>
                   </td>
                   <td className="py-2 px-4">{new Date(user.created_at).toLocaleDateString()}</td>
