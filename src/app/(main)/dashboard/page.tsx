@@ -6,24 +6,15 @@ export default async function DashboardPage() {
   const { data: { session } } = await supabase.auth.getSession()
   if (!session) redirect('/login')
 
-  const { data: profile } = await supabase
-    .from('profiles').select('name, role').eq('id', session.user.id).single()
-
   const { count: recordCount } = await supabase
     .from('work_records').select('*', { count: 'exact', head: true }).eq('user_id', session.user.id)
+
+  const { data: profile } = await supabase
+    .from('profiles').select('name, role').eq('id', session.user.id).single()
 
   return (
     <div className="p-8">
       <h1 className="text-2xl font-bold mb-6">欢迎回来，{profile?.name || session?.user?.email}</h1>
-
-      {/* 调试信息 */}
-      <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-6 text-sm">
-        <p><strong>调试信息：</strong></p>
-        <p>用户ID: {session?.user?.id}</p>
-        <p>用户邮箱: {session?.user?.email}</p>
-        <p>Profile姓名: {profile?.name}</p>
-        <p>Profile角色: {profile?.role}</p>
-      </div>
 
       <div className="grid grid-cols-2 gap-6">
         <div className="bg-white rounded-xl shadow p-6">

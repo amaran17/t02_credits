@@ -9,8 +9,8 @@ interface RecordListProps {
   role: UserRole
 }
 
-interface WorkRecordWithCustomer extends WorkRecord {
-  customers?: { name: string }
+interface WorkRecordWithParty extends WorkRecord {
+  parties?: { name: string }
   profiles?: { name: string }
 }
 
@@ -30,7 +30,7 @@ const CATEGORY_COLORS: Record<string, string> = {
 }
 
 export default function RecordList({ currentUserId, role }: RecordListProps) {
-  const [records, setRecords] = useState<WorkRecordWithCustomer[]>([])
+  const [records, setRecords] = useState<WorkRecordWithParty[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [users, setUsers] = useState<Array<{ id: string; name: string }>>([])
@@ -47,7 +47,7 @@ export default function RecordList({ currentUserId, role }: RecordListProps) {
 
     let query = supabase
       .from('work_records')
-      .select('*, customers(name), profiles(name)')
+      .select('*, parties(name), profiles(name)')
       .order('work_date', { ascending: false })
 
     // Managers only see their own records
@@ -62,7 +62,7 @@ export default function RecordList({ currentUserId, role }: RecordListProps) {
       return
     }
     if (data) {
-      let filtered = data as WorkRecordWithCustomer[]
+      let filtered = data as WorkRecordWithParty[]
 
       // Apply filters for leaders
       if (role === 'leader') {
@@ -223,7 +223,7 @@ export default function RecordList({ currentUserId, role }: RecordListProps) {
                 <span className="mx-2">|</span>
                 <span>{(record as any).profiles?.name || '未知'}</span>
                 <span className="mx-2">|</span>
-                <span>{(record as any).customers?.name || '未知客户'}</span>
+                <span>{(record as any).parties?.name || '未知客户'}</span>
               </div>
             </div>
           ))}

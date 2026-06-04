@@ -13,7 +13,7 @@ export async function GET(request: Request) {
 
   let query = supabase
     .from('work_records')
-    .select('*, customers(name)')
+    .select('*, parties(name)')
     .order('work_date', { ascending: false })
 
   // 经理只能看自己的记录，组长可以看所有

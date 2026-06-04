@@ -17,7 +17,7 @@ export async function GET(request: Request) {
 
   let query = supabase
     .from('work_records')
-    .select('*, profiles(name), customers(name)')
+    .select('*, profiles(name), parties(name)')
     .order('work_date', { ascending: false })
 
   if (profile?.role !== 'leader') {
@@ -54,7 +54,7 @@ export async function GET(request: Request) {
     sheet.addRow({
       work_date: record.work_date,
       project_name: record.project_name,
-      customer_name: (record as any).customers?.name || '',
+      customer_name: (record as any).parties?.name || '',
       industry: record.industry,
       stage: record.stage,
       customer_manager: record.customer_manager,
