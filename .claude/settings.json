@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(mkdir -p \"e:/Switch_CC/t02_credits/docs/superpowers/plans\")"
+    ],
+    "additionalDirectories": [
+      "e:\\Switch_CC\\t02_credits\\docs\\superpowers"
+    ]
+  }
+}
