@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useSupabase } from '@/components/providers'
 import { Button } from '@/components/ui/button'
@@ -25,7 +26,7 @@ export default function RegisterPage() {
     const isLeader = inviteCode === process.env.NEXT_PUBLIC_FIRST_LEADER_CODE
     const role = isLeader ? 'leader' : 'manager'
 
-    const { error } = await supabase.auth.signUp({
+    const { data, error } = await supabase.auth.signUp({
       email,
       password,
       options: {
@@ -42,13 +43,30 @@ export default function RegisterPage() {
       return
     }
 
+    if (data.user) {
+      const { error: profileError } = await supabase.from('profiles').insert({
+        id: data.user.id,
+        email,
+        name,
+        role: isLeader ? 'leader' : 'manager',
+      })
+      if (profileError) {
+        setError('创建账号失败，请重试')
+        setLoading(false)
+        return
+      }
+    }
+
     router.push('/dashboard')
     router.refresh()
   }
 
   return (
     <div>
-      <h1 className="text-2xl font-bold text-center mb-6">注册</h1>
+      <div className="text-center mb-6">
+        <h1 className="text-2xl font-bold">工作统计系统</h1>
+        <p className="text-gray-500 text-sm">注册账号</p>
+      </div>
       <form onSubmit={handleSubmit} className="space-y-4">
         <Input
           id="name"
@@ -90,6 +108,9 @@ export default function RegisterPage() {
           {loading ? '注册中...' : '注册'}
         </Button>
       </form>
+      <p className="text-center text-sm text-gray-500 mt-4">
+        已有账号？<Link href="/login" className="text-blue-500 hover:underline">登录</Link>
+      </p>
     </div>
   )
 }

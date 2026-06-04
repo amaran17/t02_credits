@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useSupabase } from '@/components/providers'
 import { Button } from '@/components/ui/button'
@@ -36,7 +37,10 @@ export default function LoginPage() {
 
   return (
     <div>
-      <h1 className="text-2xl font-bold text-center mb-6">登录</h1>
+      <div className="text-center mb-6">
+        <h1 className="text-2xl font-bold">工作统计系统</h1>
+        <p className="text-gray-500 text-sm">登录你的账号</p>
+      </div>
       <form onSubmit={handleSubmit} className="space-y-4">
         <Input
           id="email"
@@ -61,6 +65,9 @@ export default function LoginPage() {
           {loading ? '登录中...' : '登录'}
         </Button>
       </form>
+      <p className="text-center text-sm text-gray-500 mt-4">
+        还没有账号？<Link href="/register" className="text-blue-500 hover:underline">注册</Link>
+      </p>
     </div>
   )
 }
