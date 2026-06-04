@@ -67,7 +67,7 @@ export async function POST(request: Request) {
   return NextResponse.json({ success: true })
 }
 
-// PATCH - 更新用户状态（启用/停用）
+// PATCH - 更新用户角色或状态（仅组长）
 export async function PATCH(request: Request) {
   const supabase = createClient()
   const { data: { session } } = await supabase.auth.getSession()
@@ -77,13 +77,52 @@ export async function PATCH(request: Request) {
     .from('profiles').select('role').eq('id', session.user.id).single()
   if (profile?.role !== 'leader') return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
 
-  const { user_id, is_active } = await request.json()
+  const { user_id, role, is_active } = await request.json()
+  if (!user_id) return NextResponse.json({ error: 'user_id is required' }, { status: 400 })
+
+  const updates: Record<string, unknown> = {}
+  if (role !== undefined) updates.role = role
+  if (is_active !== undefined) updates.is_active = is_active
+
+  if (Object.keys(updates).length === 0) {
+    return NextResponse.json({ error: 'No fields to update' }, { status: 400 })
+  }
 
   const { error } = await supabase
     .from('profiles')
-    .update({ is_active })
+    .update(updates)
     .eq('id', user_id)
 
+  if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+  return NextResponse.json({ success: true })
+}
+
+// DELETE - 删除 inactive 用户（仅组长）
+export async function DELETE(request: Request) {
+  const supabase = createClient()
+  const { data: { session } } = await supabase.auth.getSession()
+  if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+
+  const { data: profile } = await supabase
+    .from('profiles').select('role').eq('id', session.user.id).single()
+  if (profile?.role !== 'leader') return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+
+  const { user_id } = await request.json()
+  if (!user_id) return NextResponse.json({ error: 'user_id is required' }, { status: 400 })
+
+  // 检查目标用户是否为 inactive
+  const { data: targetProfile } = await supabase
+    .from('profiles').select('is_active').eq('id', user_id).single()
+
+  if (!targetProfile) {
+    return NextResponse.json({ error: 'User not found' }, { status: 404 })
+  }
+
+  if (targetProfile.is_active !== false) {
+    return NextResponse.json({ error: 'Cannot delete active user' }, { status: 400 })
+  }
+
+  const { error } = await supabase.from('profiles').delete().eq('id', user_id)
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
   return NextResponse.json({ success: true })
 }
