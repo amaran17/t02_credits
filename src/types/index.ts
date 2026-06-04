@@ -79,3 +79,13 @@ export interface ModelConfig {
   created_by: string
   created_at: string
 }
+
+export interface Project {
+  id: string
+  name: string
+  party_id?: string
+  industry?: string
+  stage?: string
+  created_by: string
+  created_at: string
+}
