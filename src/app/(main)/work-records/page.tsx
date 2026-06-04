@@ -13,7 +13,7 @@ export default function WorkRecordsPage() {
   const fetchRecords = async () => {
     const { data } = await supabase
       .from('work_records')
-      .select('*, customers(name)')
+      .select('*, parties(name)')
       .order('work_date', { ascending: false })
     if (data) setRecords(data)
     setLoading(false)
@@ -49,7 +49,7 @@ export default function WorkRecordsPage() {
                 <div key={record.id} className="border-b pb-3">
                   <div className="font-medium text-sm">{record.project_name}</div>
                   <div className="text-xs text-gray-500 mt-1">
-                    {(record as any).customers?.name || '未知客户'} | {record.work_date}
+                    {(record as any).parties?.name || '未知客户'} | {record.work_date}
                   </div>
                   <div className="text-xs text-gray-400 mt-1">
                     权重: {record.work_weight} | {record.work_categories.join(', ')}

@@ -58,7 +58,7 @@ export default function WorkRecordForm({ onSuccess }: WorkRecordFormProps) {
   useEffect(() => {
     const loadCustomers = async () => {
       const supabase = createClient()
-      const { data } = await supabase.from('customers').select('*').order('name')
+      const { data } = await supabase.from('parties').select('*').order('name')
       if (data) setCustomers(data)
     }
     loadCustomers()
