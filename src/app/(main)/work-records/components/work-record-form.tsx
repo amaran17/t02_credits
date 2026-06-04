@@ -5,7 +5,7 @@ import { createClient } from '@/lib/supabase/client'
 import { parseWorkRecord, ParsedWorkRecord } from '@/lib/ai'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import CustomerSelect from '@/components/customer-select'
+import { PartySelect } from '@/components/party-select'
 
 const INDUSTRIES = ['文旅', '住建', '传媒', '体育'] as const
 const STAGES = ['方案阶段', '招投标过程', '已签合同', '项目暂停', '项目关闭'] as const
@@ -285,10 +285,11 @@ export default function WorkRecordForm({ onSuccess }: WorkRecordFormProps) {
 
       {/* 客户选择 */}
       <div className="space-y-1">
-        <label className="block text-sm font-medium text-gray-700">客户</label>
-        <CustomerSelect
+        <label className="block text-sm font-medium text-gray-700">客户/生态伙伴</label>
+        <PartySelect
           value={formData.customer_id}
           onChange={(id) => setFormData(prev => ({ ...prev, customer_id: id }))}
+          type="customer"
         />
       </div>
 
