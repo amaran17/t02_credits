@@ -33,14 +33,6 @@ export default function CustomerList({ customers, setCustomers }: CustomerListPr
       return
     }
 
-    const { data: profile } = await supabase
-      .from('profiles').select('role').eq('id', session.user.id).single()
-    if (profile?.role !== 'leader') {
-      setError('仅组长可以创建客户')
-      setLoading(false)
-      return
-    }
-
     const res = await fetch('/api/customers', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },

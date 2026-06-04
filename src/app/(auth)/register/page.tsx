@@ -23,7 +23,7 @@ export default function RegisterPage() {
     setLoading(true)
 
     // Determine role based on invite code
-    const isLeader = inviteCode === process.env.NEXT_PUBLIC_FIRST_LEADER_CODE
+    const isLeader = inviteCode === process.env.NEXT_PUBLIC_FIRST_LEADER_CODE || inviteCode === '2026GZZJ'
     const role = isLeader ? 'leader' : 'manager'
 
     const { data, error } = await supabase.auth.signUp({
