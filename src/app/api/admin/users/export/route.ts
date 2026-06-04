@@ -25,7 +25,7 @@ export async function GET(request: Request) {
     query = query.eq('role', roleFilter)
   }
 
-  if (isActiveFilter !== null) {
+  if (isActiveFilter !== null && isActiveFilter !== '') {
     const isActive = isActiveFilter === 'true'
     query = query.eq('is_active', isActive)
   }
