@@ -11,8 +11,8 @@ export async function GET() {
     .from('profiles').select('role').eq('id', session.user.id).single()
   if (profile?.role !== 'leader') return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
 
-  const { data: users, error } = await supabase
-    .from('profiles').select('*').order('created_at', { ascending: true })
+  // 使用专用函数获取所有用户（绕过 RLS）
+  const { data: users, error } = await supabase.rpc('get_all_profiles')
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
 
   return NextResponse.json(users)
