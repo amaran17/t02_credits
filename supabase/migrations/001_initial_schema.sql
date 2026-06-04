@@ -35,6 +35,25 @@ CREATE TABLE IF NOT EXISTS public.work_records (
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
+-- Indexes for work_records
+CREATE INDEX idx_work_records_user_id ON public.work_records(user_id);
+CREATE INDEX idx_work_records_work_date ON public.work_records(work_date);
+CREATE INDEX idx_work_records_industry ON public.work_records(industry);
+CREATE INDEX idx_work_records_customer_id ON public.work_records(customer_id);
+
+-- Trigger to auto-update updated_at
+CREATE OR REPLACE FUNCTION update_updated_at_column()
+RETURNS TRIGGER AS $$
+BEGIN
+  NEW.updated_at = NOW();
+  RETURN NEW;
+END;
+$$ language 'plpgsql';
+
+CREATE TRIGGER update_work_records_updated_at
+  BEFORE UPDATE ON public.work_records
+  FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+
 -- 工作权重配置表
 CREATE TABLE IF NOT EXISTS public.weight_configs (
   id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
