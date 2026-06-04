@@ -9,6 +9,7 @@ interface User {
   email: string
   name: string
   role: 'manager' | 'leader'
+  is_active: boolean
   created_at: string
 }
 
@@ -102,6 +103,16 @@ export function UserList() {
     setLoadingCodes(false)
   }
 
+  const toggleStatus = async (userId: string, currentStatus: boolean) => {
+    const newStatus = !currentStatus
+    await fetch('/api/admin/users', {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ user_id: userId, is_active: newStatus }),
+    })
+    fetchUsers()
+  }
+
   const getCodeStatus = (code: InviteCode) => {
     if (code.used) return '已使用'
     if (new Date(code.expires_at) < new Date()) return '已过期'
@@ -123,6 +134,7 @@ export function UserList() {
                 <th className="text-left py-2 px-4">姓名</th>
                 <th className="text-left py-2 px-4">邮箱</th>
                 <th className="text-left py-2 px-4">角色</th>
+                <th className="text-left py-2 px-4">状态</th>
                 <th className="text-left py-2 px-4">创建时间</th>
               </tr>
             </thead>
@@ -132,6 +144,18 @@ export function UserList() {
                   <td className="py-2 px-4">{user.name}</td>
                   <td className="py-2 px-4">{user.email}</td>
                   <td className="py-2 px-4">{user.role === 'leader' ? '组长' : '经理'}</td>
+                  <td className="py-2 px-4">
+                    <button
+                      onClick={() => toggleStatus(user.id, user.is_active)}
+                      className={`px-2 py-1 rounded text-xs ${
+                        user.is_active
+                          ? 'bg-green-100 text-green-700 hover:bg-green-200'
+                          : 'bg-red-100 text-red-700 hover:bg-red-200'
+                      }`}
+                    >
+                      {user.is_active ? '启用' : '停用'}
+                    </button>
+                  </td>
                   <td className="py-2 px-4">{new Date(user.created_at).toLocaleDateString()}</td>
                 </tr>
               ))}

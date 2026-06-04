@@ -66,3 +66,24 @@ export async function POST(request: Request) {
 
   return NextResponse.json({ success: true })
 }
+
+// PATCH - 更新用户状态（启用/停用）
+export async function PATCH(request: Request) {
+  const supabase = createClient()
+  const { data: { session } } = await supabase.auth.getSession()
+  if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+
+  const { data: profile } = await supabase
+    .from('profiles').select('role').eq('id', session.user.id).single()
+  if (profile?.role !== 'leader') return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+
+  const { user_id, is_active } = await request.json()
+
+  const { error } = await supabase
+    .from('profiles')
+    .update({ is_active })
+    .eq('id', user_id)
+
+  if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+  return NextResponse.json({ success: true })
+}
