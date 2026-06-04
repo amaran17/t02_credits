@@ -1,24 +1,16 @@
-"use client";
+import { redirect } from "next/navigation";
+import { createClient } from "@/lib/supabase/server";
 
-import { useEffect } from "react";
-import { createClient } from "@/lib/supabase/client";
-
-export default function Home() {
+export default async function Home() {
   const supabase = createClient();
 
-  useEffect(() => {
-    const checkUser = async () => {
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
-      if (user) {
-        window.location.href = "/dashboard";
-      } else {
-        window.location.href = "/login";
-      }
-    };
-    checkUser();
-  }, [supabase]);
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
 
-  return null;
+  if (user) {
+    redirect("/dashboard");
+  } else {
+    redirect("/login");
+  }
 }
