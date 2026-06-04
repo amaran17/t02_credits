@@ -1,7 +1,13 @@
 {
-  "/(auth)/login/page": "app/(auth)/login/page.js",
-  "/(auth)/register/page": "app/(auth)/register/page.js",
-  "/(main)/dashboard/page": "app/(main)/dashboard/page.js",
+  "/api/statistics/route": "app/api/statistics/route.js",
+  "/api/ai-config/route": "app/api/ai-config/route.js",
+  "/api/admin/users/route": "app/api/admin/users/route.js",
+  "/api/admin/invite-codes/route": "app/api/admin/invite-codes/route.js",
   "/(main)/work-records/page": "app/(main)/work-records/page.js",
-  "/(main)/customers/page": "app/(main)/customers/page.js"
+  "/(main)/customers/page": "app/(main)/customers/page.js",
+  "/(main)/statistics/page": "app/(main)/statistics/page.js",
+  "/(main)/records/page": "app/(main)/records/page.js",
+  "/(main)/settings/ai-config/page": "app/(main)/settings/ai-config/page.js",
+  "/(main)/admin/page": "app/(main)/admin/page.js",
+  "/(main)/dashboard/page": "app/(main)/dashboard/page.js"
 }
