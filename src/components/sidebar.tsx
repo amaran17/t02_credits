@@ -14,7 +14,7 @@ const NAV_ITEMS: NavItem[] = [
   { href: '/dashboard', label: '首页', roles: ['manager', 'leader'] },
   { href: '/work-records', label: '提交工作', roles: ['manager', 'leader'] },
   { href: '/records', label: '查看记录', roles: ['manager', 'leader'] },
-  { href: '/customers', label: '客户档案', roles: ['manager', 'leader'] },
+  { href: '/parties', label: '客户/生态建档', roles: ['manager', 'leader'] },
   { href: '/statistics', label: '工作量统计', roles: ['leader'] },
   { href: '/settings/weight-config', label: '权重配置', roles: ['leader'] },
   { href: '/settings/ai-config', label: 'AI配置', roles: ['leader'] },

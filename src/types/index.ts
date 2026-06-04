@@ -9,13 +9,18 @@ export interface User {
   created_at: string
 }
 
-export interface Customer {
+export interface Party {
   id: string
   name: string
   industry: Industry
+  type: 'customer' | 'ecosystem'
+  main_business?: string
   created_by: string
   created_at: string
 }
+
+// Keep Customer as alias for backwards compatibility
+export type Customer = Party
 
 export type Industry = '文旅' | '住建' | '传媒' | '体育'
 
