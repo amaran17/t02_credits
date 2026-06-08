@@ -2,10 +2,10 @@
 
 import { useState, useEffect } from 'react'
 import { createClient } from '@/lib/supabase/client'
-import { parseWorkRecord, ParsedWorkRecord } from '@/lib/ai'
+import { parseWorkRecord } from '@/lib/ai'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { PartySelect } from '@/components/party-select'
+import ProjectSelect from '@/app/(main)/projects/components/project-select'
 
 const INDUSTRIES = ['文旅', '住建', '传媒', '体育'] as const
 const STAGES = ['方案阶段', '招投标过程', '已签合同', '项目暂停', '项目关闭'] as const
@@ -22,8 +22,9 @@ interface WorkRecordFormProps {
 }
 
 interface FormData {
+  project_id: string
   project_name: string
-  customer_id: string
+  customer: string
   industry: string
   stage: string
   customer_manager: string
@@ -36,8 +37,9 @@ interface FormData {
 
 export default function WorkRecordForm({ onSuccess }: WorkRecordFormProps) {
   const [formData, setFormData] = useState<FormData>({
+    project_id: '',
     project_name: '',
-    customer_id: '',
+    customer: '',
     industry: '',
     stage: '',
     customer_manager: '',
@@ -64,15 +66,16 @@ export default function WorkRecordForm({ onSuccess }: WorkRecordFormProps) {
     loadCustomers()
   }, [])
 
-  // 当客户选择变化时，自动填充行业
+  // 当客户选择变化时，自动填充行业 (保留AI解析时的客户匹配逻辑)
   useEffect(() => {
-    if (formData.customer_id) {
-      const customer = customers.find(c => c.id === formData.customer_id)
+    if (formData.customer && !formData.project_id) {
+      // 只有在没有选择项目时才使用旧逻辑（AI解析填充）
+      const customer = customers.find(c => c.id === formData.customer)
       if (customer?.industry) {
         setFormData(prev => ({ ...prev, industry: customer.industry }))
       }
     }
-  }, [formData.customer_id, customers])
+  }, [formData.customer, customers, formData.project_id])
 
   const handleParse = async () => {
     if (!naturalLanguage.trim()) {
@@ -113,19 +116,21 @@ export default function WorkRecordForm({ onSuccess }: WorkRecordFormProps) {
     // 用解析结果填充表单
     const parsed = result.data
 
-    // 尝试匹配客户
-    let matchedCustomerId = formData.customer_id
+    // 尝试匹配客户名称
+    let matchedCustomerName = formData.customer
     if (parsed.customer_name) {
       const matched = customers.find(c =>
         c.name.includes(parsed.customer_name!) || parsed.customer_name!.includes(c.name)
       )
-      if (matched) matchedCustomerId = matched.id
+      if (matched) {
+        matchedCustomerName = matched.name
+      }
     }
 
     setFormData(prev => ({
       ...prev,
       project_name: parsed.project_name || prev.project_name,
-      customer_id: matchedCustomerId || prev.customer_id,
+      customer: matchedCustomerName || prev.customer,
       industry: parsed.industry || prev.industry,
       stage: parsed.stage || prev.stage,
       customer_manager: parsed.customer_manager || prev.customer_manager,
@@ -145,7 +150,7 @@ export default function WorkRecordForm({ onSuccess }: WorkRecordFormProps) {
     setSuccess('')
 
     // 验证必填字段
-    if (!formData.project_name || !formData.customer_id || !formData.industry ||
+    if (!formData.project_id || !formData.project_name || !formData.customer || !formData.industry ||
         !formData.stage || !formData.customer_manager || !formData.support_role ||
         !formData.work_content || !formData.work_date || !formData.work_categories) {
       setError('请填写所有必填字段')
@@ -193,8 +198,9 @@ export default function WorkRecordForm({ onSuccess }: WorkRecordFormProps) {
       .from('work_records')
       .insert({
         user_id: session.user.id,
+        project_id: formData.project_id,
         project_name: formData.project_name,
-        customer_id: formData.customer_id,
+        customer: formData.customer,
         industry: formData.industry,
         stage: formData.stage,
         customer_manager: formData.customer_manager,
@@ -212,8 +218,9 @@ export default function WorkRecordForm({ onSuccess }: WorkRecordFormProps) {
       setSuccess('提交成功')
       // 重置表单
       setFormData({
+        project_id: '',
         project_name: '',
-        customer_id: '',
+        customer: '',
         industry: '',
         stage: '',
         customer_manager: '',
@@ -274,6 +281,22 @@ export default function WorkRecordForm({ onSuccess }: WorkRecordFormProps) {
       {error && <div className="text-red-500 text-sm">{error}</div>}
       {success && <div className="text-green-500 text-sm">{success}</div>}
 
+      {/* 项目选择 */}
+      <div className="space-y-1">
+        <label className="block text-sm font-medium text-gray-700">选择项目 *</label>
+        <ProjectSelect
+          value={formData.project_id}
+          onChange={(projectId, partyName, industry) => {
+            setFormData(prev => ({
+              ...prev,
+              project_id: projectId,
+              customer: partyName,
+              industry: industry,
+            }))
+          }}
+        />
+      </div>
+
       {/* 项目名称 */}
       <Input
         label="项目名称"
@@ -283,23 +306,21 @@ export default function WorkRecordForm({ onSuccess }: WorkRecordFormProps) {
         required
       />
 
-      {/* 客户选择 */}
-      <div className="space-y-1">
-        <label className="block text-sm font-medium text-gray-700">客户/生态伙伴</label>
-        <PartySelect
-          value={formData.customer_id}
-          onChange={(id) => setFormData(prev => ({ ...prev, customer_id: id }))}
-          type="customer"
-        />
-      </div>
+      {/* 客户（只读） */}
+      <Input
+        label="客户/生态伙伴"
+        value={formData.customer}
+        readOnly
+        placeholder="选择项目后自动填充"
+      />
 
-      {/* 行业 */}
+      {/* 行业（只读） */}
       <div className="space-y-1">
         <label className="block text-sm font-medium text-gray-700">行业</label>
         <select
           value={formData.industry}
-          onChange={(e) => setFormData(prev => ({ ...prev, industry: e.target.value }))}
-          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+          disabled
+          className="w-full px-3 py-2 border border-gray-200 rounded-lg bg-gray-50 cursor-not-allowed"
           required
         >
           <option value="">选择行业</option>
