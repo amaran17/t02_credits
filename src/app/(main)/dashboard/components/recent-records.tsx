@@ -8,9 +8,7 @@ interface WorkRecord {
   work_date: string
   project_name: string
   support_role: string
-  profiles: {
-    name: string
-  } | null
+  profiles: { name: string } | null
 }
 
 export default function RecentRecords() {
@@ -23,15 +21,7 @@ export default function RecentRecords() {
 
       const { data } = await supabase
         .from('work_records')
-        .select(`
-          id,
-          work_date,
-          project_name,
-          support_role,
-          profiles:user_id (
-            name
-          )
-        `)
+        .select('*, profiles(name)')
         .order('work_date', { ascending: false })
         .limit(5)
 
@@ -49,13 +39,13 @@ export default function RecentRecords() {
   }
 
   // 获取名字首字
-  const getInitial = (name: string | null) => {
+  const getInitial = (name: string | null | undefined) => {
     if (!name) return '?'
     return name.charAt(0)
   }
 
   // 获取颜色
-  const getColorClass = (name: string | null, index: number) => {
+  const getColorClass = (_name: string | null | undefined, index: number) => {
     const colors = ['bg-blue-100', 'bg-green-100', 'bg-purple-100', 'bg-orange-100', 'bg-pink-100']
     return colors[index % colors.length]
   }
