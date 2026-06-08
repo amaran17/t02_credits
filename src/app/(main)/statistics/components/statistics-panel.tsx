@@ -1,7 +1,6 @@
 'use client'
 
-import { useEffect, useState, useCallback } from 'react'
-import { createClient } from '@/lib/supabase/client'
+import { useEffect, useState, useCallback, useMemo } from 'react'
 
 interface User {
   id: string
@@ -23,19 +22,21 @@ interface StatisticsPanelProps {
 type TimeRange = 'week' | 'month' | 'year' | 'custom'
 
 const CATEGORY_COLORS: Record<string, string> = {
-  '内部部门需求对接': 'bg-blue-100 text-blue-700',
-  '生态交流': 'bg-green-100 text-green-700',
-  '简单方案': 'bg-yellow-100 text-yellow-700',
-  '复杂方案': 'bg-orange-100 text-orange-700',
-  '日常方案汇报': 'bg-purple-100 text-purple-700',
-  '客户简单交流': 'bg-cyan-100 text-cyan-700',
-  '招投标': 'bg-red-100 text-red-700',
-  '流程支撑': 'bg-gray-100 text-gray-700',
-  '方案审核': 'bg-indigo-100 text-indigo-700',
-  '培训': 'bg-teal-100 text-teal-700',
-  '内部会议': 'bg-pink-100 text-pink-700',
-  '高层汇报/展厅讲解': 'bg-amber-100 text-amber-700',
+  '内部部门需求对接': '#3b82f6',
+  '生态交流': '#22c55e',
+  '简单方案': '#eab308',
+  '复杂方案': '#f97316',
+  '日常方案汇报': '#a855f7',
+  '客户简单交流': '#06b6d4',
+  '招投标': '#ef4444',
+  '流程支撑': '#6b7280',
+  '方案审核': '#6366f1',
+  '培训': '#14b8a6',
+  '内部会议': '#ec4899',
+  '高层汇报/展厅讲解': '#f59e0b',
 }
+
+const MEMBER_COLORS = ['#3b82f6', '#22c55e', '#a855f7', '#f97316', '#06b6d4', '#ec4899']
 
 export default function StatisticsPanel({ users }: StatisticsPanelProps) {
   const [timeRange, setTimeRange] = useState<TimeRange>('month')
@@ -129,6 +130,67 @@ export default function StatisticsPanel({ users }: StatisticsPanelProps) {
     if (userIds.length > 0) params.set('user_ids', userIds.join(','))
 
     window.location.href = `/api/export?${params.toString()}`
+  }
+
+  // 计算成员分布数据（带百分比）
+  const memberDistribution = useMemo(() => {
+    if (!results?.byUser.length) return []
+    const total = results.byUser.reduce((sum, u) => sum + u.total_weight, 0)
+    return results.byUser
+      .map((user, idx) => ({
+        ...user,
+        percentage: total > 0 ? Math.round((user.total_weight / total) * 100) : 0,
+        color: MEMBER_COLORS[idx % MEMBER_COLORS.length],
+      }))
+      .sort((a, b) => b.total_weight - a.total_weight)
+  }, [results])
+
+  // 计算高权重类别（权重>=3）
+  const highWeightCategories = useMemo(() => {
+    if (!results?.byCategory) return []
+    return Object.entries(results.byCategory)
+      .filter(([, weight]) => weight >= 3)
+      .sort((a, b) => b[1] - a[1])
+  }, [results])
+
+  // 简单饼图SVG数据
+  const pieChartData = useMemo(() => {
+    const categories = highWeightCategories.slice(0, 5)
+    if (!categories.length) return []
+    const total = categories.reduce((sum, [, w]) => sum + w, 0)
+    let currentAngle = 0
+    return categories.map(([cat, weight]) => {
+      const percentage = total > 0 ? (weight / total) * 100 : 0
+      const angle = (percentage / 100) * 360
+      const startAngle = currentAngle
+      currentAngle += angle
+      return {
+        category: cat,
+        weight,
+        percentage: Math.round(percentage),
+        color: CATEGORY_COLORS[cat] || '#6b7280',
+        startAngle,
+        endAngle: currentAngle,
+      }
+    })
+  }, [highWeightCategories])
+
+  // 生成SVG饼图路径
+  const describeArc = (startAngle: number, endAngle: number, radius: number) => {
+    const start = polarToCartesian(50, 50, radius, endAngle)
+    const end = polarToCartesian(50, 50, radius, startAngle)
+    const largeArcFlag = endAngle - startAngle <= 180 ? 0 : 1
+    return [
+      'M', 50, 50,
+      'L', start.x, start.y,
+      'A', radius, radius, 0, largeArcFlag, 0, end.x, end.y,
+      'Z',
+    ].join(' ')
+  }
+
+  const polarToCartesian = (cx: number, cy: number, r: number, angle: number) => {
+    const rad = ((angle - 90) * Math.PI) / 180
+    return { x: cx + r * Math.cos(rad), y: cy + r * Math.sin(rad) }
   }
 
   return (
@@ -256,19 +318,107 @@ export default function StatisticsPanel({ users }: StatisticsPanelProps) {
       {/* Results */}
       {!loading && results && (
         <div className="space-y-6">
-          {/* Summary card */}
-          <div className="bg-gradient-to-r from-blue-500 to-blue-600 rounded-lg shadow p-6 text-white">
-            <h2 className="text-lg font-medium mb-4 opacity-90">总计</h2>
-            <div className="grid grid-cols-2 gap-6">
-              <div>
-                <p className="text-sm opacity-75">总记录数</p>
-                <p className="text-3xl font-bold">{results.total.count}</p>
-              </div>
-              <div>
-                <p className="text-sm opacity-75">总权重</p>
-                <p className="text-3xl font-bold">{results.total.weight}</p>
-              </div>
+          {/* Summary cards */}
+          <div className="grid grid-cols-2 gap-4">
+            <div className="bg-gradient-to-r from-blue-500 to-blue-600 rounded-lg shadow p-6 text-white">
+              <p className="text-sm opacity-75">总记录数</p>
+              <p className="text-3xl font-bold">{results.total.count}</p>
             </div>
+            <div className="bg-gradient-to-r from-green-500 to-green-600 rounded-lg shadow p-6 text-white">
+              <p className="text-sm opacity-75">总权重</p>
+              <p className="text-3xl font-bold">{results.total.weight}</p>
+            </div>
+          </div>
+
+          {/* Two column layout: Member distribution + Category pie */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {/* Member distribution bar chart */}
+            <div className="bg-white rounded-lg shadow p-6">
+              <h3 className="text-lg font-semibold text-gray-900 mb-4">成员分布</h3>
+              {memberDistribution.length === 0 ? (
+                <div className="text-center text-gray-500 py-8">暂无数据</div>
+              ) : (
+                <div className="space-y-3">
+                  {memberDistribution.map((member) => (
+                    <div key={member.id} className="flex items-center gap-3">
+                      <span className="w-16 text-sm text-gray-600 truncate">{member.name}</span>
+                      <div className="flex-1 bg-gray-200 rounded-full h-4 relative overflow-hidden">
+                        <div
+                          className="h-4 rounded-full transition-all duration-500"
+                          style={{ width: `${member.percentage}%`, backgroundColor: member.color }}
+                        />
+                      </div>
+                      <span className="w-12 text-sm text-gray-700 font-medium text-right">{member.total_weight}c</span>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* High-weight category pie chart */}
+            <div className="bg-white rounded-lg shadow p-6">
+              <h3 className="text-lg font-semibold text-gray-900 mb-4">高权重类别（权重≥3）</h3>
+              {pieChartData.length === 0 ? (
+                <div className="text-center text-gray-500 py-8">暂无高权重数据</div>
+              ) : (
+                <div className="flex items-center gap-6">
+                  {/* Pie chart SVG */}
+                  <svg viewBox="0 0 100 100" className="w-32 h-32 flex-shrink-0">
+                    {pieChartData.map((item) => (
+                      <path
+                        key={item.category}
+                        d={describeArc(item.startAngle, item.endAngle, 45)}
+                        fill={item.color}
+                        stroke="white"
+                        strokeWidth="1"
+                      />
+                    ))}
+                    <circle cx="50" cy="50" r="20" fill="white" />
+                  </svg>
+                  {/* Legend */}
+                  <div className="flex-1 space-y-2">
+                    {pieChartData.map((item) => (
+                      <div key={item.category} className="flex items-center gap-2">
+                        <div
+                          className="w-3 h-3 rounded-full flex-shrink-0"
+                          style={{ backgroundColor: item.color }}
+                        />
+                        <span className="text-sm text-gray-600 flex-1 truncate">{item.category}</span>
+                        <span className="text-sm font-medium text-gray-900">{item.weight}c</span>
+                        <span className="text-xs text-gray-400 w-8 text-right">{item.percentage}%</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* By-category grid */}
+          <div className="bg-white rounded-lg shadow overflow-hidden">
+            <div className="px-6 py-4 border-b border-gray-200">
+              <h3 className="text-lg font-semibold text-gray-900">全类别权重分布</h3>
+            </div>
+            {Object.keys(results.byCategory).length === 0 ? (
+              <div className="p-6 text-center text-gray-500">暂无数据</div>
+            ) : (
+              <div className="p-6">
+                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                  {Object.entries(results.byCategory)
+                    .sort((a, b) => b[1] - a[1])
+                    .map(([category, weight]) => (
+                      <div key={category} className="flex items-center gap-3 p-3 rounded-lg bg-gray-50">
+                        <div
+                          className="w-3 h-3 rounded-full flex-shrink-0"
+                          style={{ backgroundColor: CATEGORY_COLORS[category] || '#6b7280' }}
+                        />
+                        <span className="text-sm text-gray-700 flex-1 truncate">{category}</span>
+                        <span className="text-lg font-semibold text-gray-900">{weight}</span>
+                      </div>
+                    ))}
+                </div>
+              </div>
+            )}
           </div>
 
           {/* By-user table */}
@@ -298,31 +448,6 @@ export default function StatisticsPanel({ users }: StatisticsPanelProps) {
                     ))}
                   </tbody>
                 </table>
-              </div>
-            )}
-          </div>
-
-          {/* By-category grid */}
-          <div className="bg-white rounded-lg shadow overflow-hidden">
-            <div className="px-6 py-4 border-b border-gray-200">
-              <h3 className="text-lg font-semibold text-gray-900">按类别统计</h3>
-            </div>
-            {Object.keys(results.byCategory).length === 0 ? (
-              <div className="p-6 text-center text-gray-500">暂无数据</div>
-            ) : (
-              <div className="p-6">
-                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-                  {Object.entries(results.byCategory)
-                    .sort((a, b) => b[1] - a[1])
-                    .map(([category, weight]) => (
-                      <div key={category} className="flex items-center gap-3 p-3 rounded-lg bg-gray-50">
-                        <span className={`px-2 py-1 text-xs rounded ${CATEGORY_COLORS[category] || 'bg-gray-100 text-gray-600'}`}>
-                          {category}
-                        </span>
-                        <span className="text-lg font-semibold text-gray-900">{weight}</span>
-                      </div>
-                    ))}
-                </div>
               </div>
             )}
           </div>
