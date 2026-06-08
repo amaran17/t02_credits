@@ -1,0 +1,1574 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>工作统计系统 - 组长演示</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    * { font-family: 'Segoe UI', 'Microsoft YaHei', sans-serif; }
+    .page-section { display: none; }
+    .page-section.active { display: block; }
+    .nav-item.active { background: #3b82f6; color: white; }
+    .modal { display: none; }
+    .modal.open { display: flex; }
+    .checkbox-item:checked + label { background: #3b82f6; color: white; }
+  </style>
+</head>
+<body class="bg-gray-100 h-screen flex">
+
+  <!-- 侧边栏 -->
+  <aside class="w-64 bg-gray-900 text-white flex flex-col">
+    <div class="p-4 border-b border-gray-700">
+      <h1 class="text-lg font-bold"><i class="fas fa-chart-bar mr-2"></i>工作统计系统</h1>
+      <p class="text-sm text-gray-400 mt-1">组长视角 · 演示账号</p>
+    </div>
+    <nav class="flex-1 py-4">
+      <button onclick="showPage('dashboard')" class="nav-item w-full text-left px-6 py-3 hover:bg-gray-700 flex items-center gap-3" data-page="dashboard">
+        <i class="fas fa-home w-5"></i>首页
+      </button>
+      <button onclick="showPage('work-records')" class="nav-item w-full text-left px-6 py-3 hover:bg-gray-700 flex items-center gap-3" data-page="work-records">
+        <i class="fas fa-edit w-5"></i>提交工作
+      </button>
+      <button onclick="showPage('records')" class="nav-item w-full text-left px-6 py-3 hover:bg-gray-700 flex items-center gap-3" data-page="records">
+        <i class="fas fa-list w-5"></i>查看记录
+      </button>
+      <button onclick="showPage('parties')" class="nav-item w-full text-left px-6 py-3 hover:bg-gray-700 flex items-center gap-3" data-page="parties">
+        <i class="fas fa-building w-5"></i>客户/生态建档
+      </button>
+      <button onclick="showPage('statistics')" class="nav-item w-full text-left px-6 py-3 hover:bg-gray-700 flex items-center gap-3" data-page="statistics">
+        <i class="fas fa-chart-pie w-5"></i>工作量统计
+      </button>
+      <div class="my-2 mx-4 border-t border-gray-700"></div>
+      <button onclick="showPage('weight-config')" class="nav-item w-full text-left px-6 py-3 hover:bg-gray-700 flex items-center gap-3" data-page="weight-config">
+        <i class="fas fa-sliders-h w-5"></i>权重配置
+      </button>
+      <button onclick="showPage('ai-config')" class="nav-item w-full text-left px-6 py-3 hover:bg-gray-700 flex items-center gap-3" data-page="ai-config">
+        <i class="fas fa-robot w-5"></i>AI配置
+      </button>
+      <button onclick="showPage('admin')" class="nav-item w-full text-left px-6 py-3 hover:bg-gray-700 flex items-center gap-3" data-page="admin">
+        <i class="fas fa-users-cog w-5"></i>账号管理
+      </button>
+    </nav>
+    <div class="p-4 border-t border-gray-700">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 bg-blue-500 rounded-full flex items-center justify-center">
+          <i class="fas fa-user"></i>
+        </div>
+        <div>
+          <p class="text-sm font-medium">张组长</p>
+          <p class="text-xs text-gray-400">组长</p>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- 主内容区 -->
+  <main class="flex-1 overflow-auto">
+
+    <!-- 首页仪表盘 -->
+    <section id="page-dashboard" class="page-section active p-6">
+      <h2 class="text-2xl font-bold mb-6">工作台</h2>
+
+      <!-- 欢迎语 -->
+      <div class="bg-gradient-to-r from-blue-500 to-blue-600 rounded-lg p-4 mb-6 text-white">
+        <p class="text-lg font-medium"><i class="fas fa-hand-wave mr-2"></i>欢迎张组长！</p>
+        <p class="text-sm opacity-80 mt-1">今天是美好的一天，您已完成 <span class="font-bold">3</span> 条工作记录，继续加油！</p>
+      </div>
+
+      <div class="grid grid-cols-4 gap-6 mb-6">
+        <div class="bg-white rounded-lg p-6 shadow">
+          <div class="flex items-center justify-between">
+            <div>
+              <p class="text-gray-500 text-sm">本周提交</p>
+              <p class="text-3xl font-bold text-blue-600">23</p>
+            </div>
+            <div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
+              <i class="fas fa-file-alt text-blue-600"></i>
+            </div>
+          </div>
+          <p class="text-green-500 text-sm mt-2"><i class="fas fa-arrow-up"></i> +3 本周</p>
+        </div>
+        <div class="bg-white rounded-lg p-6 shadow">
+          <div class="flex items-center justify-between">
+            <div>
+              <p class="text-gray-500 text-sm">客户总数</p>
+              <p class="text-3xl font-bold text-green-600">45</p>
+            </div>
+            <div class="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
+              <i class="fas fa-building text-green-600"></i>
+            </div>
+          </div>
+          <p class="text-gray-400 text-sm mt-2">活跃客户 38</p>
+        </div>
+        <div class="bg-white rounded-lg p-6 shadow">
+          <div class="flex items-center justify-between">
+            <div>
+              <p class="text-gray-500 text-sm">本月工作量</p>
+              <p class="text-3xl font-bold text-purple-600">156c</p>
+            </div>
+            <div class="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center">
+              <i class="fas fa-clock text-purple-600"></i>
+            </div>
+          </div>
+          <p class="text-gray-400 text-sm mt-2">人均 26c</p>
+        </div>
+        <div class="bg-white rounded-lg p-6 shadow">
+          <div class="flex items-center justify-between">
+            <div>
+              <p class="text-gray-500 text-sm">团队成员</p>
+              <p class="text-3xl font-bold text-orange-600">6</p>
+            </div>
+            <div class="w-12 h-12 bg-orange-100 rounded-full flex items-center justify-center">
+              <i class="fas fa-users text-orange-600"></i>
+            </div>
+          </div>
+          <p class="text-gray-400 text-sm mt-2">组长 1 / 经理 5</p>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-2 gap-6">
+        <div class="bg-white rounded-lg p-6 shadow">
+          <h3 class="font-bold text-lg mb-4">最近工作记录</h3>
+          <div class="space-y-3">
+            <div class="flex items-center justify-between py-2 border-b">
+              <div class="flex items-center gap-3">
+                <div class="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center text-xs">李明</div>
+                <div>
+                  <p class="font-medium">某科技公司项目支撑</p>
+                  <p class="text-xs text-gray-400">2026-06-05</p>
+                </div>
+              </div>
+              <span class="px-2 py-1 bg-blue-100 text-blue-600 rounded text-xs">一线支撑</span>
+            </div>
+            <div class="flex items-center justify-between py-2 border-b">
+              <div class="flex items-center gap-3">
+                <div class="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center text-xs">王芳</div>
+                <div>
+                  <p class="font-medium">金融客户系统升级</p>
+                  <p class="text-xs text-gray-400">2026-06-04</p>
+                </div>
+              </div>
+              <span class="px-2 py-1 bg-green-100 text-green-600 rounded text-xs">二线支撑</span>
+            </div>
+            <div class="flex items-center justify-between py-2">
+              <div class="flex items-center gap-3">
+                <div class="w-8 h-8 bg-purple-100 rounded-full flex items-center justify-center text-xs">赵强</div>
+                <div>
+                  <p class="font-medium">政府云平台部署</p>
+                  <p class="text-xs text-gray-400">2026-06-03</p>
+                </div>
+              </div>
+              <span class="px-2 py-1 bg-blue-100 text-blue-600 rounded text-xs">一线支撑</span>
+            </div>
+          </div>
+        </div>
+        <div class="bg-white rounded-lg p-6 shadow">
+          <h3 class="font-bold text-lg mb-4">快捷操作</h3>
+          <div class="grid grid-cols-2 gap-3">
+            <button onclick="showPage('work-records')" class="p-4 border rounded-lg hover:bg-blue-50 flex flex-col items-center gap-2">
+              <i class="fas fa-plus-circle text-2xl text-blue-500"></i>
+              <span class="text-sm">提交工作</span>
+            </button>
+            <button onclick="showPage('records')" class="p-4 border rounded-lg hover:bg-green-50 flex flex-col items-center gap-2">
+              <i class="fas fa-search text-2xl text-green-500"></i>
+              <span class="text-sm">查看记录</span>
+            </button>
+            <button onclick="showPage('statistics')" class="p-4 border rounded-lg hover:bg-purple-50 flex flex-col items-center gap-2">
+              <i class="fas fa-chart-bar text-2xl text-purple-500"></i>
+              <span class="text-sm">数据统计</span>
+            </button>
+            <button onclick="showPage('admin')" class="p-4 border rounded-lg hover:bg-orange-50 flex flex-col items-center gap-2">
+              <i class="fas fa-users text-2xl text-orange-500"></i>
+              <span class="text-sm">账号管理</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 提交工作记录 -->
+    <section id="page-work-records" class="page-section p-6">
+      <h2 class="text-2xl font-bold mb-6">提交工作记录</h2>
+      <div class="bg-white rounded-lg shadow p-6">
+        <div class="mb-6">
+          <label class="block text-sm font-medium mb-2">AI 智能解析输入</label>
+          <div class="flex gap-2">
+            <textarea id="ai-input" class="flex-1 border rounded-lg p-3 h-24" placeholder="输入工作内容，如：6月5日 14:00 支撑某银行一线问题处理 客户经理：张总 项目：金融云平台升级"></textarea>
+            <button onclick="parseAI()" class="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600">
+              <i class="fas fa-magic mr-2"></i>AI解析
+            </button>
+          </div>
+          <div id="ai-result" class="mt-2 p-3 bg-blue-50 rounded-lg text-sm text-blue-700 hidden"></div>
+        </div>
+
+        <form class="space-y-4">
+          <div class="grid grid-cols-2 gap-4">
+            <div>
+              <label class="block text-sm font-medium mb-1">工作日期</label>
+              <input type="date" value="2026-06-05" class="w-full border rounded-lg p-2">
+            </div>
+            <div>
+              <label class="block text-sm font-medium mb-1">支撑角色</label>
+              <div class="flex gap-4 mt-2">
+                <label class="flex items-center gap-2">
+                  <input type="radio" name="support_role" value="一线支撑" checked>
+                  <span>一线支撑</span>
+                </label>
+                <label class="flex items-center gap-2">
+                  <input type="radio" name="support_role" value="二线支撑">
+                  <span>二线支撑</span>
+                </label>
+              </div>
+            </div>
+          </div>
+          <div class="grid grid-cols-2 gap-4">
+            <div>
+              <label class="block text-sm font-medium mb-1">客户经理</label>
+              <input type="text" value="张总" class="w-full border rounded-lg p-2">
+            </div>
+            <div>
+              <label class="block text-sm font-medium mb-1">项目名称</label>
+              <select id="project-select" onchange="updateProjectBinding()" class="w-full border rounded-lg p-2">
+                <option value="">请选择项目</option>
+                <option value="p1" data-customer="某银行科技部" data-industry="金融">金融云平台升级</option>
+                <option value="p2" data-customer="政务云平台" data-industry="住建">政府云迁移项目</option>
+                <option value="p3" data-customer="某医院信息科" data-industry="文旅">医院系统集成</option>
+              </select>
+            </div>
+          </div>
+          <div class="grid grid-cols-2 gap-4">
+            <div>
+              <label class="block text-sm font-medium mb-1">客户</label>
+              <input type="text" id="customer-input" readonly placeholder="根据项目自动绑定" class="w-full border rounded-lg p-2 bg-gray-50">
+              <p class="text-xs text-gray-500 mt-1">* 选择项目后自动关联对应客户</p>
+            </div>
+            <div>
+              <label class="block text-sm font-medium mb-1">行业类别</label>
+              <select id="industry-select" class="w-full border rounded-lg p-2 bg-gray-50">
+                <option value="">根据项目自动绑定</option>
+                <option value="文旅">文旅</option>
+                <option value="传媒">传媒</option>
+                <option value="体育">体育</option>
+                <option value="住建">住建</option>
+              </select>
+              <p class="text-xs text-gray-500 mt-1">* 行业类别仅支持：文旅、传媒、体育、住建</p>
+            </div>
+          </div>
+          <div>
+            <label class="block text-sm font-medium mb-1">工作内容</label>
+            <textarea class="w-full border rounded-lg p-2 h-24">6月5日 14:00 支撑某银行一线问题处理，远程协助排查网络故障</textarea>
+          </div>
+          <div class="grid grid-cols-2 gap-4">
+            <div>
+              <label class="block text-sm font-medium mb-1">工作类别</label>
+              <select class="w-full border rounded-lg p-2">
+                <option>内部部门需求对接</option>
+                <option>生态交流</option>
+                <option>简单方案</option>
+                <option selected>复杂方案</option>
+                <option>日常方案汇报</option>
+                <option>客户简单交流</option>
+                <option>招投标</option>
+                <option>流程支撑</option>
+                <option>方案审核</option>
+                <option>培训</option>
+                <option>内部会议</option>
+                <option>高层汇报/展厅讲解</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-sm font-medium mb-1">权重</label>
+              <input type="number" value="5" class="w-full border rounded-lg p-2">
+            </div>
+          </div>
+          <div class="flex justify-end gap-3">
+            <button type="button" class="px-4 py-2 border rounded-lg hover:bg-gray-50">保存草稿</button>
+            <button type="submit" class="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600">
+              <i class="fas fa-check mr-2"></i>提交记录
+            </button>
+          </div>
+        </form>
+      </div>
+    </section>
+
+    <!-- 查看记录 -->
+    <section id="page-records" class="page-section p-6">
+      <h2 class="text-2xl font-bold mb-6">查看记录</h2>
+      <div class="bg-white rounded-lg shadow p-6">
+        <!-- 筛选区域 -->
+        <div class="mb-4 p-4 bg-gray-50 rounded-lg">
+          <div class="flex flex-wrap gap-4 items-end">
+            <!-- 姓名筛选 -->
+            <div>
+              <label class="block text-xs text-gray-500 mb-1">姓名</label>
+              <select id="filter-name" class="border rounded-lg px-3 py-2 min-w-[120px]">
+                <option value="">全部成员</option>
+                <option>李明</option>
+                <option>王芳</option>
+                <option>赵强</option>
+                <option>张组长</option>
+              </select>
+            </div>
+            <!-- 项目筛选 -->
+            <div>
+              <label class="block text-xs text-gray-500 mb-1">项目</label>
+              <select id="filter-project" class="border rounded-lg px-3 py-2 min-w-[150px]">
+                <option value="">全部项目</option>
+                <option>金融云平台升级</option>
+                <option>政府云迁移项目</option>
+                <option>医院系统集成</option>
+              </select>
+            </div>
+            <!-- 工作类别筛选 -->
+            <div>
+              <label class="block text-xs text-gray-500 mb-1">工作类别</label>
+              <select id="filter-category" class="border rounded-lg px-3 py-2 min-w-[140px]">
+                <option value="">全部类别</option>
+                <option>内部部门需求对接</option>
+                <option>生态交流</option>
+                <option>简单方案</option>
+                <option>复杂方案</option>
+                <option>日常方案汇报</option>
+                <option>客户简单交流</option>
+                <option>招投标</option>
+                <option>流程支撑</option>
+                <option>方案审核</option>
+                <option>培训</option>
+                <option>内部会议</option>
+                <option>高层汇报/展厅讲解</option>
+              </select>
+            </div>
+            <!-- 支撑角色筛选 -->
+            <div>
+              <label class="block text-xs text-gray-500 mb-1">支撑角色</label>
+              <select id="filter-role" class="border rounded-lg px-3 py-2 min-w-[120px]">
+                <option value="">全部角色</option>
+                <option>一线支撑</option>
+                <option>二线支撑</option>
+              </select>
+            </div>
+            <!-- 时间范围筛选 -->
+            <div class="flex items-center gap-2">
+              <label class="text-xs text-gray-500">时间范围:</label>
+              <input type="date" id="filter-start" value="2026-06-01" class="border rounded-lg px-3 py-2">
+              <span class="text-gray-400">至</span>
+              <input type="date" id="filter-end" value="2026-06-05" class="border rounded-lg px-3 py-2">
+            </div>
+            <!-- 筛选按钮 -->
+            <button onclick="applyFilters()" class="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600">
+              <i class="fas fa-search mr-2"></i>筛选
+            </button>
+            <button onclick="resetFilters()" class="px-4 py-2 border rounded-lg hover:bg-gray-100">
+              <i class="fas fa-redo mr-2"></i>重置
+            </button>
+          </div>
+        </div>
+
+        <div class="flex justify-end mb-4">
+          <button class="px-4 py-2 border border-green-500 text-green-500 rounded-lg hover:bg-green-50">
+            <i class="fas fa-download mr-2"></i>导出Excel
+          </button>
+        </div>
+
+        <table class="w-full border-collapse">
+          <thead>
+            <tr class="bg-gray-50">
+              <th class="text-left p-3 border">日期</th>
+              <th class="text-left p-3 border">解决方案</th>
+              <th class="text-left p-3 border">客户</th>
+              <th class="text-left p-3 border">项目</th>
+              <th class="text-left p-3 border">工作内容</th>
+              <th class="text-left p-3 border">类别</th>
+              <th class="text-left p-3 border">角色</th>
+              <th class="text-left p-3 border">权重</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr class="hover:bg-gray-50">
+              <td class="p-3 border">2026-06-05</td>
+              <td class="p-3 border">李明</td>
+              <td class="p-3 border">某银行科技部</td>
+              <td class="p-3 border">金融云平台升级</td>
+              <td class="p-3 border">银行一线问题处理</td>
+              <td class="p-3 border">项目支撑</td>
+              <td class="p-3 border"><span class="px-2 py-1 bg-blue-100 rounded text-xs">一线支撑</span></td>
+              <td class="p-3 border">2c</td>
+            </tr>
+            <tr class="hover:bg-gray-50">
+              <td class="p-3 border">2026-06-05</td>
+              <td class="p-3 border">王芳</td>
+              <td class="p-3 border">政务云平台</td>
+              <td class="p-3 border">政府云迁移项目</td>
+              <td class="p-3 border">方案评审会议</td>
+              <td class="p-3 border">咨询</td>
+              <td class="p-3 border"><span class="px-2 py-1 bg-green-100 rounded text-xs">二线支撑</span></td>
+              <td class="p-3 border">3c</td>
+            </tr>
+            <tr class="hover:bg-gray-50">
+              <td class="p-3 border">2026-06-04</td>
+              <td class="p-3 border">赵强</td>
+              <td class="p-3 border">某医院信息科</td>
+              <td class="p-3 border">医院系统集成</td>
+              <td class="p-3 border">系统部署调试</td>
+              <td class="p-3 border">项目支撑</td>
+              <td class="p-3 border"><span class="px-2 py-1 bg-blue-100 rounded text-xs">一线支撑</span></td>
+              <td class="p-3 border">4c</td>
+            </tr>
+            <tr class="hover:bg-gray-50">
+              <td class="p-3 border">2026-06-04</td>
+              <td class="p-3 border">张组长</td>
+              <td class="p-3 border">某银行科技部</td>
+              <td class="p-3 border">金融云平台升级</td>
+              <td class="p-3 border">客户需求沟通</td>
+              <td class="p-3 border">项目支撑</td>
+              <td class="p-3 border"><span class="px-2 py-1 bg-blue-100 rounded text-xs">一线支撑</span></td>
+              <td class="p-3 border">
+                <span>2c</span>
+                <button onclick="openWeightEdit(this)" class="ml-2 text-blue-500 hover:underline text-xs">修改</button>
+              </td>
+            </tr>
+            <tr class="hover:bg-gray-50">
+              <td class="p-3 border">2026-06-03</td>
+              <td class="p-3 border">李明</td>
+              <td class="p-3 border">政务云平台</td>
+              <td class="p-3 border">政府云迁移项目</td>
+              <td class="p-3 border">培训演示</td>
+              <td class="p-3 border">培训</td>
+              <td class="p-3 border"><span class="px-2 py-1 bg-blue-100 rounded text-xs">一线支撑</span></td>
+              <td class="p-3 border">3c</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <div class="mt-4 flex justify-between items-center">
+          <p class="text-gray-500 text-sm">共 5 条记录</p>
+          <div class="flex gap-2">
+            <button class="px-3 py-1 border rounded hover:bg-gray-50" disabled>上一页</button>
+            <button class="px-3 py-1 border rounded bg-blue-500 text-white">1</button>
+            <button class="px-3 py-1 border rounded hover:bg-gray-50">2</button>
+            <button class="px-3 py-1 border rounded hover:bg-gray-50">下一页</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 客户/生态建档 -->
+    <section id="page-parties" class="page-section p-6">
+      <h2 class="text-2xl font-bold mb-6">客户/生态建档</h2>
+      <div class="bg-white rounded-lg shadow p-6">
+        <div class="flex justify-between items-center mb-4">
+          <!-- 搜索和筛选 -->
+          <div class="flex gap-3 items-end">
+            <div>
+              <label class="block text-xs text-gray-500 mb-1">搜索客户</label>
+              <input type="text" id="party-search" placeholder="搜索客户名称..." class="border rounded-lg px-3 py-2 w-48">
+            </div>
+            <div>
+              <label class="block text-xs text-gray-500 mb-1">类型筛选</label>
+              <select id="filter-type" onchange="applyPartyFilters()" class="border rounded-lg px-3 py-2">
+                <option value="">全部类型</option>
+                <option value="customer">客户</option>
+                <option value="ecosystem">生态</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-xs text-gray-500 mb-1">行业筛选</label>
+              <select id="filter-party-industry" onchange="applyPartyFilters()" class="border rounded-lg px-3 py-2">
+                <option value="">全部行业</option>
+                <option value="文旅">文旅</option>
+                <option value="传媒">传媒</option>
+                <option value="体育">体育</option>
+                <option value="住建">住建</option>
+              </select>
+            </div>
+            <button class="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600">
+              <i class="fas fa-search mr-2"></i>搜索
+            </button>
+          </div>
+          <div class="flex gap-3">
+            <button class="px-4 py-2 border border-green-500 text-green-500 rounded-lg hover:bg-green-50">
+              <i class="fas fa-download mr-2"></i>导出
+            </button>
+            <button onclick="openModal('party-modal')" class="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600">
+              <i class="fas fa-plus mr-2"></i>新建档案
+            </button>
+          </div>
+        </div>
+
+        <table class="w-full border-collapse">
+          <thead>
+            <tr class="bg-gray-50">
+              <th class="text-left p-3 border">客户名称</th>
+              <th class="text-left p-3 border">类型</th>
+              <th class="text-left p-3 border">联系人</th>
+              <th class="text-left p-3 border">联系电话</th>
+              <th class="text-left p-3 border">行业</th>
+              <th class="text-left p-3 border">创建时间</th>
+              <th class="text-left p-3 border">操作</th>
+            </tr>
+          </thead>
+          <tbody id="party-table-body">
+            <tr class="hover:bg-gray-50">
+              <td class="p-3 border font-medium">某银行科技部</td>
+              <td class="p-3 border"><span class="px-2 py-1 bg-blue-100 rounded text-xs">客户</span></td>
+              <td class="p-3 border">张总</td>
+              <td class="p-3 border">138****8888</td>
+              <td class="p-3 border">金融</td>
+              <td class="p-3 border">2026-05-10</td>
+              <td class="p-3 border">
+                <button class="text-blue-500 hover:underline mr-2">编辑</button>
+                <button class="text-red-500 hover:underline">删除</button>
+              </td>
+            </tr>
+            <tr class="hover:bg-gray-50">
+              <td class="p-3 border font-medium">云服务商A</td>
+              <td class="p-3 border"><span class="px-2 py-1 bg-green-100 rounded text-xs">生态</span></td>
+              <td class="p-3 border">李经理</td>
+              <td class="p-3 border">139****9999</td>
+              <td class="p-3 border">云服务</td>
+              <td class="p-3 border">2026-05-08</td>
+              <td class="p-3 border">
+                <button class="text-blue-500 hover:underline mr-2">编辑</button>
+                <button class="text-red-500 hover:underline">删除</button>
+              </td>
+            </tr>
+            <tr class="hover:bg-gray-50">
+              <td class="p-3 border font-medium">政务云平台</td>
+              <td class="p-3 border"><span class="px-2 py-1 bg-blue-100 rounded text-xs">客户</span></td>
+              <td class="p-3 border">王主任</td>
+              <td class="p-3 border">137****7777</td>
+              <td class="p-3 border">政府</td>
+              <td class="p-3 border">2026-04-20</td>
+              <td class="p-3 border">
+                <button class="text-blue-500 hover:underline mr-2">编辑</button>
+                <button class="text-red-500 hover:underline">删除</button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+        <p class="text-xs text-orange-600 mt-4"><i class="fas fa-info-circle mr-1"></i>行业类别仅支持：文旅、传媒、体育、住建</p>
+      </div>
+    </section>
+
+    <!-- 工作量统计 -->
+    <section id="page-statistics" class="page-section p-6">
+      <h2 class="text-2xl font-bold mb-6">工作量统计</h2>
+
+      <!-- 左右双栏布局 -->
+      <div class="grid grid-cols-2 gap-6">
+
+        <!-- 左侧：本週统计 -->
+        <div class="bg-white rounded-lg shadow p-6">
+          <div class="flex justify-between items-center mb-4">
+            <h3 class="font-bold text-lg"><i class="fas fa-calendar-week mr-2 text-blue-500"></i>本周统计概览</h3>
+            <button onclick="exportWeekStats()" class="px-3 py-1.5 border border-green-500 text-green-500 rounded-lg hover:bg-green-50 text-sm">
+              <i class="fas fa-download mr-1"></i>导出Excel
+            </button>
+          </div>
+
+          <!-- 本周筛选 -->
+          <div class="mb-4 p-3 bg-gray-50 rounded-lg">
+            <div class="flex flex-wrap gap-3 items-end">
+              <div>
+                <label class="block text-xs text-gray-500 mb-1">起止日期</label>
+                <div class="flex items-center gap-2">
+                  <input type="date" id="week-start" class="border rounded px-2 py-1 text-sm" value="2026-06-01">
+                  <span class="text-gray-400">至</span>
+                  <input type="date" id="week-end" class="border rounded px-2 py-1 text-sm" value="2026-06-07">
+                </div>
+              </div>
+              <button onclick="updateWeekStats()" class="px-3 py-1 bg-blue-500 text-white rounded text-sm">应用</button>
+            </div>
+            <div class="mt-2">
+              <label class="text-xs text-gray-500 mr-2">人员范围:</label>
+              <div class="flex flex-wrap gap-2 mt-1">
+                <label class="flex items-center gap-1 text-xs">
+                  <input type="checkbox" checked onchange="toggleMemberFilter('week', this)" class="rounded"> 全选
+                </label>
+                <label class="flex items-center gap-1 text-xs">
+                  <input type="checkbox" checked class="week-member rounded"> 李明
+                </label>
+                <label class="flex items-center gap-1 text-xs">
+                  <input type="checkbox" checked class="week-member rounded"> 王芳
+                </label>
+                <label class="flex items-center gap-1 text-xs">
+                  <input type="checkbox" checked class="week-member rounded"> 赵强
+                </label>
+                <label class="flex items-center gap-1 text-xs">
+                  <input type="checkbox" checked class="week-member rounded"> 张组长
+                </label>
+              </div>
+            </div>
+          </div>
+
+          <!-- 本周统计卡片 -->
+          <div class="grid grid-cols-2 gap-4 mb-4">
+            <div class="text-center p-3 bg-blue-50 rounded-lg">
+              <p class="text-gray-500 text-xs">本周总工作量</p>
+              <p class="text-2xl font-bold text-blue-600">156c</p>
+            </div>
+            <div class="text-center p-3 bg-green-50 rounded-lg">
+              <p class="text-gray-500 text-xs">本周记录数</p>
+              <p class="text-2xl font-bold text-green-600">23</p>
+            </div>
+          </div>
+
+          <!-- 本周人员分布 -->
+          <div class="border rounded-lg p-3">
+            <h4 class="font-medium text-sm mb-2">本周成员分布</h4>
+            <div class="space-y-2">
+              <div class="flex items-center gap-2">
+                <span class="w-12 text-xs">李明</span>
+                <div class="flex-1 bg-gray-200 rounded-full h-3">
+                  <div class="bg-blue-500 h-3 rounded-full" style="width: 35%"></div>
+                </div>
+                <span class="text-xs w-12">54c</span>
+              </div>
+              <div class="flex items-center gap-2">
+                <span class="w-12 text-xs">王芳</span>
+                <div class="flex-1 bg-gray-200 rounded-full h-3">
+                  <div class="bg-green-500 h-3 rounded-full" style="width: 28%"></div>
+                </div>
+                <span class="text-xs w-12">44c</span>
+              </div>
+              <div class="flex items-center gap-2">
+                <span class="w-12 text-xs">赵强</span>
+                <div class="flex-1 bg-gray-200 rounded-full h-3">
+                  <div class="bg-purple-500 h-3 rounded-full" style="width: 22%"></div>
+                </div>
+                <span class="text-xs w-12">34c</span>
+              </div>
+              <div class="flex items-center gap-2">
+                <span class="w-12 text-xs">张组长</span>
+                <div class="flex-1 bg-gray-200 rounded-full h-3">
+                  <div class="bg-orange-500 h-3 rounded-full" style="width: 15%"></div>
+                </div>
+                <span class="text-xs w-12">24c</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 右侧：本月统计 -->
+        <div class="bg-white rounded-lg shadow p-6">
+          <div class="flex justify-between items-center mb-4">
+            <h3 class="font-bold text-lg"><i class="fas fa-calendar-alt mr-2 text-purple-500"></i>本月统计概览</h3>
+            <button onclick="exportMonthStats()" class="px-3 py-1.5 border border-green-500 text-green-500 rounded-lg hover:bg-green-50 text-sm">
+              <i class="fas fa-download mr-1"></i>导出Excel
+            </button>
+          </div>
+
+          <!-- 本月筛选 -->
+          <div class="mb-4 p-3 bg-gray-50 rounded-lg">
+            <div class="flex flex-wrap gap-3 items-end">
+              <div>
+                <label class="block text-xs text-gray-500 mb-1">起止日期</label>
+                <div class="flex items-center gap-2">
+                  <input type="date" id="month-start" class="border rounded px-2 py-1 text-sm" value="2026-06-01">
+                  <span class="text-gray-400">至</span>
+                  <input type="date" id="month-end" class="border rounded px-2 py-1 text-sm" value="2026-06-30">
+                </div>
+              </div>
+              <button onclick="updateMonthStats()" class="px-3 py-1 bg-blue-500 text-white rounded text-sm">应用</button>
+            </div>
+            <div class="mt-2">
+              <label class="text-xs text-gray-500 mr-2">人员范围:</label>
+              <div class="flex flex-wrap gap-2 mt-1">
+                <label class="flex items-center gap-1 text-xs">
+                  <input type="checkbox" checked onchange="toggleMemberFilter('month', this)" class="rounded"> 全选
+                </label>
+                <label class="flex items-center gap-1 text-xs">
+                  <input type="checkbox" checked class="month-member rounded"> 李明
+                </label>
+                <label class="flex items-center gap-1 text-xs">
+                  <input type="checkbox" checked class="month-member rounded"> 王芳
+                </label>
+                <label class="flex items-center gap-1 text-xs">
+                  <input type="checkbox" checked class="month-member rounded"> 赵强
+                </label>
+                <label class="flex items-center gap-1 text-xs">
+                  <input type="checkbox" checked class="month-member rounded"> 张组长
+                </label>
+              </div>
+            </div>
+          </div>
+
+          <!-- 本月统计卡片 -->
+          <div class="grid grid-cols-2 gap-4 mb-4">
+            <div class="text-center p-3 bg-purple-50 rounded-lg">
+              <p class="text-gray-500 text-xs">本月总工作量</p>
+              <p class="text-2xl font-bold text-purple-600">468c</p>
+            </div>
+            <div class="text-center p-3 bg-orange-50 rounded-lg">
+              <p class="text-gray-500 text-xs">本月记录数</p>
+              <p class="text-2xl font-bold text-orange-600">86</p>
+            </div>
+          </div>
+
+          <!-- 本月成员分布 -->
+          <div class="border rounded-lg p-3">
+            <h4 class="font-medium text-sm mb-2">本月成员分布</h4>
+            <div class="space-y-2">
+              <div class="flex items-center gap-2">
+                <span class="w-12 text-xs">李明</span>
+                <div class="flex-1 bg-gray-200 rounded-full h-3">
+                  <div class="bg-blue-500 h-3 rounded-full" style="width: 30%"></div>
+                </div>
+                <span class="text-xs w-12">140c</span>
+              </div>
+              <div class="flex items-center gap-2">
+                <span class="w-12 text-xs">王芳</span>
+                <div class="flex-1 bg-gray-200 rounded-full h-3">
+                  <div class="bg-green-500 h-3 rounded-full" style="width: 25%"></div>
+                </div>
+                <span class="text-xs w-12">117c</span>
+              </div>
+              <div class="flex items-center gap-2">
+                <span class="w-12 text-xs">赵强</span>
+                <div class="flex-1 bg-gray-200 rounded-full h-3">
+                  <div class="bg-purple-500 h-3 rounded-full" style="width: 22%"></div>
+                </div>
+                <span class="text-xs w-12">103c</span>
+              </div>
+              <div class="flex items-center gap-2">
+                <span class="w-12 text-xs">张组长</span>
+                <div class="flex-1 bg-gray-200 rounded-full h-3">
+                  <div class="bg-orange-500 h-3 rounded-full" style="width: 15%"></div>
+                </div>
+                <span class="text-xs w-12">70c</span>
+              </div>
+              <div class="flex items-center gap-2">
+                <span class="w-12 text-xs">陈丽</span>
+                <div class="flex-1 bg-gray-200 rounded-full h-3">
+                  <div class="bg-red-500 h-3 rounded-full" style="width: 8%"></div>
+                </div>
+                <span class="text-xs w-12">38c</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 底部类别分布和高权重占比 -->
+      <div class="grid grid-cols-2 gap-6 mt-6">
+        <div class="bg-white rounded-lg shadow p-6">
+          <h4 class="font-bold mb-4">工作类别分布</h4>
+          <div class="space-y-2">
+            <div class="flex justify-between items-center py-2 border-b">
+              <span>复杂方案</span>
+              <div class="flex items-center gap-2">
+                <div class="w-32 bg-gray-200 rounded-full h-3">
+                  <div class="bg-orange-500 h-3 rounded-full" style="width: 35%"></div>
+                </div>
+                <span class="text-sm">35%</span>
+              </div>
+            </div>
+            <div class="flex justify-between items-center py-2 border-b">
+              <span>招投标</span>
+              <div class="flex items-center gap-2">
+                <div class="w-32 bg-gray-200 rounded-full h-3">
+                  <div class="bg-red-500 h-3 rounded-full" style="width: 25%"></div>
+                </div>
+                <span class="text-sm">25%</span>
+              </div>
+            </div>
+            <div class="flex justify-between items-center py-2 border-b">
+              <span>日常方案汇报</span>
+              <div class="flex items-center gap-2">
+                <div class="w-32 bg-gray-200 rounded-full h-3">
+                  <div class="bg-blue-500 h-3 rounded-full" style="width: 15%"></div>
+                </div>
+                <span class="text-sm">15%</span>
+              </div>
+            </div>
+            <div class="flex justify-between items-center py-2 border-b">
+              <span>客户简单交流</span>
+              <div class="flex items-center gap-2">
+                <div class="w-32 bg-gray-200 rounded-full h-3">
+                  <div class="bg-green-500 h-3 rounded-full" style="width: 10%"></div>
+                </div>
+                <span class="text-sm">10%</span>
+              </div>
+            </div>
+            <div class="flex justify-between items-center py-2">
+              <span>其他类别</span>
+              <div class="flex items-center gap-2">
+                <div class="w-32 bg-gray-200 rounded-full h-3">
+                  <div class="bg-gray-400 h-3 rounded-full" style="width: 15%"></div>
+                </div>
+                <span class="text-sm">15%</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="bg-white rounded-lg shadow p-6">
+          <h4 class="font-bold mb-4">高权重工作占比</h4>
+          <div class="flex justify-center items-center py-8">
+            <div class="relative w-48 h-48">
+              <div class="absolute inset-0 rounded-full border-8 border-orange-500" style="clip-path: polygon(50% 50%, 100% 0%, 100% 100%, 0% 100%, 0% 0%, 60% 0%)"></div>
+              <div class="absolute inset-0 flex flex-col items-center justify-center">
+                <span class="text-2xl font-bold">60%</span>
+                <span class="text-sm text-gray-500">高权重</span>
+              </div>
+            </div>
+          </div>
+          <div class="flex justify-center gap-8 mt-4">
+            <div class="flex items-center gap-2">
+              <div class="w-4 h-4 bg-orange-500 rounded"></div>
+              <span class="text-sm">高权重 (权重≥3)</span>
+            </div>
+            <div class="flex items-center gap-2">
+              <div class="w-4 h-4 bg-blue-500 rounded"></div>
+              <span class="text-sm">基础权重 (权重≤2)</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 权重配置 -->
+    <section id="page-weight-config" class="page-section p-6">
+      <h2 class="text-2xl font-bold mb-6">权重配置</h2>
+
+      <div class="bg-white rounded-lg shadow p-6">
+        <!-- 提示信息 -->
+        <div class="mb-6 p-4 bg-amber-50 border border-amber-200 rounded-lg">
+          <div class="flex items-start gap-3">
+            <i class="fas fa-exclamation-triangle text-amber-500 mt-1"></i>
+            <div>
+              <p class="font-medium text-amber-800">配置说明</p>
+              <ul class="text-sm text-amber-700 mt-2 space-y-1">
+                <li>• <strong>全局权重设置</strong>：适用于除"招投标"外的所有工作类别，系统将根据配置的权重自动计算工作量</li>
+                <li>• <strong>招投标权重设置</strong>：招投标工作需要针对每条记录单独设置权重，默认值为0</li>
+                <li>• 组长可以在"查看记录"板块中修改招投标工作的权重值</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <!-- 全局设置 -->
+        <div class="mb-8">
+          <div class="flex justify-between items-center mb-4">
+            <h3 class="font-bold text-lg"><i class="fas fa-globe mr-2 text-blue-500"></i>全局权重设置</h3>
+            <button class="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600">
+              <i class="fas fa-save mr-2"></i>保存全局配置
+            </button>
+          </div>
+          <table class="w-full border-collapse">
+            <thead>
+              <tr class="bg-gray-50">
+                <th class="text-left p-3 border">序号</th>
+                <th class="text-left p-3 border">工作类别</th>
+                <th class="text-left p-3 border">权重值</th>
+                <th class="text-left p-3 border">说明</th>
+                <th class="text-left p-3 border">操作</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr class="hover:bg-gray-50">
+                <td class="p-3 border">1</td>
+                <td class="p-3 border">内部部门需求对接</td>
+                <td class="p-3 border font-bold text-blue-600">1</td>
+                <td class="p-3 border text-gray-500">内部协作类</td>
+                <td class="p-3 border">
+                  <button class="text-blue-500 hover:underline mr-2">编辑</button>
+                </td>
+              </tr>
+              <tr class="hover:bg-gray-50">
+                <td class="p-3 border">2</td>
+                <td class="p-3 border">生态交流</td>
+                <td class="p-3 border font-bold text-blue-600">1</td>
+                <td class="p-3 border text-gray-500">生态合作类</td>
+                <td class="p-3 border">
+                  <button class="text-blue-500 hover:underline mr-2">编辑</button>
+                </td>
+              </tr>
+              <tr class="hover:bg-gray-50">
+                <td class="p-3 border">3</td>
+                <td class="p-3 border">简单方案</td>
+                <td class="p-3 border font-bold text-blue-600">2</td>
+                <td class="p-3 border text-gray-500">方案设计类</td>
+                <td class="p-3 border">
+                  <button class="text-blue-500 hover:underline mr-2">编辑</button>
+                </td>
+              </tr>
+              <tr class="hover:bg-gray-50">
+                <td class="p-3 border">4</td>
+                <td class="p-3 border">复杂方案</td>
+                <td class="p-3 border font-bold text-orange-600">5</td>
+                <td class="p-3 border text-gray-500">高权重方案类</td>
+                <td class="p-3 border">
+                  <button class="text-blue-500 hover:underline mr-2">编辑</button>
+                </td>
+              </tr>
+              <tr class="hover:bg-gray-50">
+                <td class="p-3 border">5</td>
+                <td class="p-3 border">日常方案汇报</td>
+                <td class="p-3 border font-bold text-orange-600">3</td>
+                <td class="p-3 border text-gray-500">汇报沟通类</td>
+                <td class="p-3 border">
+                  <button class="text-blue-500 hover:underline mr-2">编辑</button>
+                </td>
+              </tr>
+              <tr class="hover:bg-gray-50">
+                <td class="p-3 border">6</td>
+                <td class="p-3 border">客户简单交流</td>
+                <td class="p-3 border font-bold text-blue-600">2</td>
+                <td class="p-3 border text-gray-500">客户沟通类</td>
+                <td class="p-3 border">
+                  <button class="text-blue-500 hover:underline mr-2">编辑</button>
+                </td>
+              </tr>
+              <tr class="hover:bg-gray-50">
+                <td class="p-3 border">8</td>
+                <td class="p-3 border">流程支撑</td>
+                <td class="p-3 border font-bold text-blue-600">1</td>
+                <td class="p-3 border text-gray-500">流程协作类</td>
+                <td class="p-3 border">
+                  <button class="text-blue-500 hover:underline mr-2">编辑</button>
+                </td>
+              </tr>
+              <tr class="hover:bg-gray-50">
+                <td class="p-3 border">9</td>
+                <td class="p-3 border">方案审核</td>
+                <td class="p-3 border font-bold text-blue-600">1</td>
+                <td class="p-3 border text-gray-500">审核评审类</td>
+                <td class="p-3 border">
+                  <button class="text-blue-500 hover:underline mr-2">编辑</button>
+                </td>
+              </tr>
+              <tr class="hover:bg-gray-50">
+                <td class="p-3 border">10</td>
+                <td class="p-3 border">培训</td>
+                <td class="p-3 border font-bold text-blue-600">1</td>
+                <td class="p-3 border text-gray-500">知识传递类</td>
+                <td class="p-3 border">
+                  <button class="text-blue-500 hover:underline mr-2">编辑</button>
+                </td>
+              </tr>
+              <tr class="hover:bg-gray-50">
+                <td class="p-3 border">11</td>
+                <td class="p-3 border">内部会议</td>
+                <td class="p-3 border font-bold text-blue-600">1</td>
+                <td class="p-3 border text-gray-500">内部会议类</td>
+                <td class="p-3 border">
+                  <button class="text-blue-500 hover:underline mr-2">编辑</button>
+                </td>
+              </tr>
+              <tr class="hover:bg-gray-50">
+                <td class="p-3 border">12</td>
+                <td class="p-3 border">高层汇报/展厅讲解</td>
+                <td class="p-3 border font-bold text-orange-600">5</td>
+                <td class="p-3 border text-gray-500">高权重对外类</td>
+                <td class="p-3 border">
+                  <button class="text-blue-500 hover:underline mr-2">编辑</button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- 招投标单独设置 -->
+        <div>
+          <div class="flex justify-between items-center mb-4">
+            <h3 class="font-bold text-lg"><i class="fas fa-file-alt mr-2 text-red-500"></i>招投标权重（单独设置）</h3>
+            <button class="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600">
+              <i class="fas fa-save mr-2"></i>保存招投标配置
+            </button>
+          </div>
+          <div class="bg-red-50 border border-red-200 rounded-lg p-6">
+            <div class="flex items-center justify-between">
+              <div>
+                <p class="font-bold text-lg">招投标</p>
+                <p class="text-sm text-gray-600 mt-1">此类别的权重需要在"查看记录"中为每条工作记录单独设置</p>
+                <p class="text-sm text-red-600 mt-2"><i class="fas fa-info-circle mr-1"></i>当前默认值：<span class="font-bold">0</span></p>
+              </div>
+              <div class="text-center p-4 bg-white rounded-lg border-2 border-red-200">
+                <p class="text-gray-500 text-sm">默认权重</p>
+                <p class="text-4xl font-bold text-red-500">0</p>
+              </div>
+            </div>
+            <div class="mt-4 p-3 bg-white rounded border">
+              <p class="text-sm text-gray-600"><i class="fas fa-lightbulb text-yellow-500 mr-1"></i>组长操作提示：在"查看记录"页面中，点击"招投标"类别记录的"修改"按钮，可为每条记录设置不同的权重值，以准确反映工作量。</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="mt-6 flex justify-end">
+          <p class="text-sm text-gray-500">权重说明：<span class="font-medium">1</span>=基础权重 | <span class="font-bold text-orange-600">3</span>=中等权重 | <span class="font-bold text-red-600">5</span>=高权重 | <span class="font-bold text-red-600">0</span>=待单独设置</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- AI配置 -->
+    <section id="page-ai-config" class="page-section p-6">
+      <h2 class="text-2xl font-bold mb-6">AI配置</h2>
+      <div class="bg-white rounded-lg shadow p-6">
+        <div class="mb-6">
+          <h3 class="font-bold text-lg mb-4">AI 模型配置</h3>
+          <div class="grid grid-cols-2 gap-6">
+            <div>
+              <label class="block text-sm font-medium mb-2">AI 提供商</label>
+              <select id="ai-provider" onchange="updateAIFields()" class="w-full border rounded-lg p-2">
+                <option value="openai" selected>OpenAI</option>
+                <option value="anthropic">Anthropic</option>
+                <option value="azure">Azure OpenAI</option>
+                <option value="custom">自定义Provider</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-sm font-medium mb-2">模型名称</label>
+              <select id="ai-model" class="w-full border rounded-lg p-2">
+                <option selected>gpt-4o</option>
+                <option>gpt-4o-mini</option>
+                <option>gpt-4-turbo</option>
+                <option>gpt-3.5-turbo</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <!-- API 配置 -->
+        <div class="mb-6">
+          <h3 class="font-bold text-lg mb-4">API 配置</h3>
+          <div class="grid grid-cols-2 gap-6">
+            <div id="openai-key-field">
+              <label class="block text-sm font-medium mb-2">API Key</label>
+              <input type="password" value="sk-xxxx...xxxx" class="w-full border rounded-lg p-2">
+              <p class="text-xs text-gray-500 mt-1">用于身份验证的API密钥</p>
+            </div>
+            <div id="openai-base-url">
+              <label class="block text-sm font-medium mb-2">Base URL <span class="text-xs text-gray-400">(可选)</span></label>
+              <input type="text" value="https://api.openai.com/v1" placeholder="https://api.openai.com/v1" class="w-full border rounded-lg p-2">
+              <p class="text-xs text-gray-500 mt-1">API请求地址，默认为官方地址</p>
+            </div>
+            <div id="anthropic-key-field" class="hidden">
+              <label class="block text-sm font-medium mb-2">API Key</label>
+              <input type="password" placeholder="sk-ant-..." class="w-full border rounded-lg p-2">
+            </div>
+            <div id="anthropic-base-url" class="hidden">
+              <label class="block text-sm font-medium mb-2">Base URL <span class="text-xs text-gray-400">(可选)</span></label>
+              <input type="text" placeholder="https://api.anthropic.com" class="w-full border rounded-lg p-2">
+            </div>
+            <div id="azure-endpoint" class="hidden">
+              <label class="block text-sm font-medium mb-2">Endpoint</label>
+              <input type="text" placeholder="https://your-resource.openai.azure.com" class="w-full border rounded-lg p-2">
+              <p class="text-xs text-gray-500 mt-1">Azure OpenAI 资源端点</p>
+            </div>
+            <div id="azure-api-version" class="hidden">
+              <label class="block text-sm font-medium mb-2">API Version</label>
+              <select class="w-full border rounded-lg p-2">
+                <option value="2024-02-01" selected>2024-02-01</option>
+                <option value="2023-12-01-preview">2023-12-01-preview</option>
+                <option value="2023-05-15">2023-05-15</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <!-- 连接配置 -->
+        <div class="mb-6">
+          <h3 class="font-bold text-lg mb-4">连接配置</h3>
+          <div class="grid grid-cols-3 gap-6">
+            <div>
+              <label class="block text-sm font-medium mb-2">请求超时 (秒)</label>
+              <input type="number" value="30" min="5" max="120" class="w-full border rounded-lg p-2">
+            </div>
+            <div>
+              <label class="block text-sm font-medium mb-2">最大重试次数</label>
+              <input type="number" value="3" min="0" max="10" class="w-full border rounded-lg p-2">
+            </div>
+            <div>
+              <label class="block text-sm font-medium mb-2">Temperature</label>
+              <input type="number" value="0.7" min="0" max="2" step="0.1" class="w-full border rounded-lg p-2">
+            </div>
+          </div>
+        </div>
+
+        <div class="mb-6">
+          <h3 class="font-bold text-lg mb-4">提示词模板</h3>
+          <div class="space-y-4">
+            <div>
+              <label class="block text-sm font-medium mb-2">系统提示词</label>
+              <textarea class="w-full border rounded-lg p-3 h-24">你是一个工作记录解析助手。用户输入自然语言的工作描述，你需要提取关键信息并以结构化JSON格式返回。可提取字段：date, support_role, work_content, customer_manager, project_name, work_category, workload。</textarea>
+            </div>
+            <div>
+              <label class="block text-sm font-medium mb-2">用户提示词模板</label>
+              <textarea class="w-full border rounded-lg p-3 h-16">请解析以下工作记录，返回JSON格式：
+{input}</textarea>
+            </div>
+          </div>
+        </div>
+
+        <div class="flex justify-end gap-3">
+          <button class="px-4 py-2 border rounded-lg hover:bg-gray-50">
+            <i class="fas fa-sync mr-2"></i>测试连接
+          </button>
+          <button class="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600">
+            <i class="fas fa-save mr-2"></i>保存配置
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- 账号管理 -->
+    <section id="page-admin" class="page-section p-6">
+      <h2 class="text-2xl font-bold mb-6">账号管理</h2>
+      <div class="bg-white rounded-lg shadow p-6">
+        <div class="flex justify-between items-center mb-4">
+          <div class="flex gap-3">
+            <input type="text" placeholder="搜索姓名或邮箱..." class="border rounded-lg px-3 py-2 w-64">
+            <select class="border rounded-lg px-3 py-2">
+              <option value="">全部角色</option>
+              <option value="leader">组长</option>
+              <option value="manager">经理</option>
+            </select>
+            <select class="border rounded-lg px-3 py-2">
+              <option value="">全部状态</option>
+              <option value="active">启用</option>
+              <option value="inactive">禁用</option>
+            </select>
+            <button class="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600">
+              <i class="fas fa-search mr-2"></i>筛选
+            </button>
+          </div>
+          <div class="flex gap-3">
+            <button class="px-4 py-2 border border-green-500 text-green-500 rounded-lg hover:bg-green-50">
+              <i class="fas fa-download mr-2"></i>导出
+            </button>
+            <button onclick="openModal('user-modal')" class="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600">
+              <i class="fas fa-user-plus mr-2"></i>新建用户
+            </button>
+          </div>
+        </div>
+
+        <table class="w-full border-collapse">
+          <thead>
+            <tr class="bg-gray-50">
+              <th class="text-left p-3 border">姓名</th>
+              <th class="text-left p-3 border">邮箱</th>
+              <th class="text-left p-3 border">角色</th>
+              <th class="text-left p-3 border">状态</th>
+              <th class="text-left p-3 border">创建时间</th>
+              <th class="text-left p-3 border">操作</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr class="hover:bg-gray-50">
+              <td class="p-3 border font-medium">张组长</td>
+              <td class="p-3 border">zhangzhu@demo.com</td>
+              <td class="p-3 border"><span class="px-2 py-1 bg-purple-100 text-purple-700 rounded text-xs">组长</span></td>
+              <td class="p-3 border">
+                <span class="px-2 py-1 bg-green-100 text-green-700 rounded text-xs flex items-center w-fit gap-1">
+                  <i class="fas fa-check-circle text-xs"></i>启用
+                </span>
+              </td>
+              <td class="p-3 border">2026-01-15</td>
+              <td class="p-3 border">
+                <button onclick="openModal('user-modal')" class="text-blue-500 hover:underline mr-2">编辑</button>
+              </td>
+            </tr>
+            <tr class="hover:bg-gray-50">
+              <td class="p-3 border font-medium">李明</td>
+              <td class="p-3 border">liming@demo.com</td>
+              <td class="p-3 border"><span class="px-2 py-1 bg-blue-100 text-blue-700 rounded text-xs">经理</span></td>
+              <td class="p-3 border">
+                <span class="px-2 py-1 bg-green-100 text-green-700 rounded text-xs flex items-center w-fit gap-1">
+                  <i class="fas fa-check-circle text-xs"></i>启用
+                </span>
+              </td>
+              <td class="p-3 border">2026-02-20</td>
+              <td class="p-3 border">
+                <button onclick="toggleUser(this, false)" class="text-orange-500 hover:underline mr-2">禁用</button>
+                <button onclick="openModal('user-modal')" class="text-blue-500 hover:underline">编辑</button>
+              </td>
+            </tr>
+            <tr class="hover:bg-gray-50">
+              <td class="p-3 border font-medium">王芳</td>
+              <td class="p-3 border">wangfang@demo.com</td>
+              <td class="p-3 border"><span class="px-2 py-1 bg-blue-100 text-blue-700 rounded text-xs">经理</span></td>
+              <td class="p-3 border">
+                <span class="px-2 py-1 bg-green-100 text-green-700 rounded text-xs flex items-center w-fit gap-1">
+                  <i class="fas fa-check-circle text-xs"></i>启用
+                </span>
+              </td>
+              <td class="p-3 border">2026-03-10</td>
+              <td class="p-3 border">
+                <button onclick="toggleUser(this, false)" class="text-orange-500 hover:underline mr-2">禁用</button>
+                <button onclick="openModal('user-modal')" class="text-blue-500 hover:underline">编辑</button>
+              </td>
+            </tr>
+            <tr class="hover:bg-gray-50">
+              <td class="p-3 border font-medium">赵强</td>
+              <td class="p-3 border">zhaoqiang@demo.com</td>
+              <td class="p-3 border"><span class="px-2 py-1 bg-blue-100 text-blue-700 rounded text-xs">经理</span></td>
+              <td class="p-3 border">
+                <span class="px-2 py-1 bg-gray-100 text-gray-500 rounded text-xs flex items-center w-fit gap-1">
+                  <i class="fas fa-ban text-xs"></i>禁用
+                </span>
+              </td>
+              <td class="p-3 border">2026-04-05</td>
+              <td class="p-3 border">
+                <button onclick="toggleUser(this, true)" class="text-green-500 hover:underline mr-2">启用</button>
+                <button onclick="openModal('user-modal')" class="text-blue-500 hover:underline">编辑</button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+
+        <div class="mt-4 flex justify-between items-center">
+          <p class="text-gray-500 text-sm">共 4 条记录</p>
+          <div class="flex gap-2">
+            <button class="px-3 py-1 border rounded hover:bg-gray-50" disabled>上一页</button>
+            <button class="px-3 py-1 border rounded bg-blue-500 text-white">1</button>
+            <button class="px-3 py-1 border rounded hover:bg-gray-50">2</button>
+            <button class="px-3 py-1 border rounded hover:bg-gray-50">下一页</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- 新建用户弹窗 -->
+  <div id="user-modal" class="modal fixed inset-0 bg-black/50 items-center justify-center z-50">
+    <div class="bg-white rounded-lg w-[500px] shadow-xl">
+      <div class="flex justify-between items-center p-4 border-b">
+        <h3 class="font-bold text-lg">新建用户</h3>
+        <button onclick="closeModal('user-modal')" class="text-gray-400 hover:text-gray-600">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      <div class="p-6 space-y-4">
+        <div>
+          <label class="block text-sm font-medium mb-1">邮箱</label>
+          <input type="email" placeholder="user@example.com" class="w-full border rounded-lg p-2">
+        </div>
+        <div>
+          <label class="block text-sm font-medium mb-1">姓名</label>
+          <input type="text" placeholder="输入姓名" class="w-full border rounded-lg p-2">
+        </div>
+        <div>
+          <label class="block text-sm font-medium mb-1">角色</label>
+          <select class="w-full border rounded-lg p-2">
+            <option value="manager">经理</option>
+            <option value="leader">组长</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-sm font-medium mb-1">初始密码</label>
+          <input type="password" placeholder="输入密码" class="w-full border rounded-lg p-2">
+        </div>
+        <div>
+          <label class="block text-sm font-medium mb-1">邀请码</label>
+          <input type="text" placeholder="生成邀请码" class="w-full border rounded-lg p-2">
+        </div>
+      </div>
+      <div class="flex justify-end gap-3 p-4 border-t bg-gray-50">
+        <button onclick="closeModal('user-modal')" class="px-4 py-2 border rounded-lg hover:bg-gray-100">取消</button>
+        <button onclick="closeModal('user-modal')" class="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600">创建用户</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 新建客户档案弹窗 -->
+  <div id="party-modal" class="modal fixed inset-0 bg-black/50 items-center justify-center z-50">
+    <div class="bg-white rounded-lg w-[500px] shadow-xl">
+      <div class="flex justify-between items-center p-4 border-b">
+        <h3 class="font-bold text-lg">新建档案</h3>
+        <button onclick="closeModal('party-modal')" class="text-gray-400 hover:text-gray-600">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      <div class="p-6 space-y-4">
+        <div>
+          <label class="block text-sm font-medium mb-1">客户名称</label>
+          <input type="text" placeholder="输入客户名称" class="w-full border rounded-lg p-2">
+        </div>
+        <div>
+          <label class="block text-sm font-medium mb-1">类型</label>
+          <select class="w-full border rounded-lg p-2">
+            <option value="customer">客户</option>
+            <option value="ecosystem">生态</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-sm font-medium mb-1">联系人</label>
+          <input type="text" placeholder="输入联系人姓名" class="w-full border rounded-lg p-2">
+        </div>
+        <div>
+          <label class="block text-sm font-medium mb-1">联系电话</label>
+          <input type="tel" placeholder="输入联系电话" class="w-full border rounded-lg p-2">
+        </div>
+        <div>
+          <label class="block text-sm font-medium mb-1">行业 <span class="text-xs text-red-500">* 仅支持：文旅、传媒、体育、住建</span></label>
+          <select class="w-full border rounded-lg p-2">
+            <option value="">请选择行业</option>
+            <option value="文旅">文旅</option>
+            <option value="传媒">传媒</option>
+            <option value="体育">体育</option>
+            <option value="住建">住建</option>
+          </select>
+        </div>
+      </div>
+      <div class="flex justify-end gap-3 p-4 border-t bg-gray-50">
+        <button onclick="closeModal('party-modal')" class="px-4 py-2 border rounded-lg hover:bg-gray-100">取消</button>
+        <button onclick="closeModal('party-modal')" class="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600">创建</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 权重编辑弹窗 -->
+  <div id="weight-edit-modal" class="modal fixed inset-0 bg-black/50 items-center justify-center z-50">
+    <div class="bg-white rounded-lg w-[400px] shadow-xl">
+      <div class="flex justify-between items-center p-4 border-b">
+        <h3 class="font-bold text-lg">编辑权重</h3>
+        <button onclick="closeModal('weight-edit-modal')" class="text-gray-400 hover:text-gray-600">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      <div class="p-6 space-y-4">
+        <div>
+          <label class="block text-sm font-medium mb-1">工作类别</label>
+          <input type="text" id="edit-weight-category" readonly class="w-full border rounded-lg p-2 bg-gray-50">
+        </div>
+        <div>
+          <label class="block text-sm font-medium mb-1">权重值</label>
+          <input type="number" id="edit-weight-value" min="0" value="0" class="w-full border rounded-lg p-2">
+          <p class="text-xs text-gray-500 mt-1">招投标权重以"工作记录"为维度单独指定</p>
+        </div>
+      </div>
+      <div class="flex justify-end gap-3 p-4 border-t bg-gray-50">
+        <button onclick="closeModal('weight-edit-modal')" class="px-4 py-2 border rounded-lg hover:bg-gray-100">取消</button>
+        <button onclick="saveWeightEdit()" class="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600">保存</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function showPage(pageName) {
+      // 隐藏所有页面
+      document.querySelectorAll('.page-section').forEach(el => el.classList.remove('active'));
+      // 显示目标页面
+      document.getElementById('page-' + pageName).classList.add('active');
+      // 更新导航高亮
+      document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+      document.querySelector('[data-page="' + pageName + '"]')?.classList.add('active');
+    }
+
+    function openModal(modalId) {
+      document.getElementById(modalId).classList.add('open');
+    }
+
+    function closeModal(modalId) {
+      document.getElementById(modalId).classList.remove('open');
+    }
+
+    function updateAIFields() {
+      const provider = document.getElementById('ai-provider').value;
+
+      // 隐藏所有字段
+      document.getElementById('openai-key-field').classList.add('hidden');
+      document.getElementById('openai-base-url').classList.add('hidden');
+      document.getElementById('anthropic-key-field').classList.add('hidden');
+      document.getElementById('anthropic-base-url').classList.add('hidden');
+      document.getElementById('azure-endpoint').classList.add('hidden');
+      document.getElementById('azure-api-version').classList.add('hidden');
+
+      // 显示对应提供商的字段
+      if (provider === 'openai') {
+        document.getElementById('openai-key-field').classList.remove('hidden');
+        document.getElementById('openai-base-url').classList.remove('hidden');
+      } else if (provider === 'anthropic') {
+        document.getElementById('anthropic-key-field').classList.remove('hidden');
+        document.getElementById('anthropic-base-url').classList.remove('hidden');
+      } else if (provider === 'azure') {
+        document.getElementById('azure-endpoint').classList.remove('hidden');
+        document.getElementById('azure-api-version').classList.remove('hidden');
+      }
+
+      // 更新模型选项
+      const modelSelect = document.getElementById('ai-model');
+      if (provider === 'openai') {
+        modelSelect.innerHTML = `
+          <option selected>gpt-4o</option>
+          <option>gpt-4o-mini</option>
+          <option>gpt-4-turbo</option>
+          <option>gpt-3.5-turbo</option>
+        `;
+      } else if (provider === 'anthropic') {
+        modelSelect.innerHTML = `
+          <option selected>claude-3-5-sonnet</option>
+          <option>claude-3-opus</option>
+          <option>claude-3-haiku</option>
+        `;
+      } else if (provider === 'azure') {
+        modelSelect.innerHTML = `
+          <option selected>gpt-4o</option>
+          <option>gpt-4o-mini</option>
+          <option>gpt-35-turbo</option>
+        `;
+      }
+    }
+
+    function parseAI() {
+      const input = document.getElementById('ai-input').value;
+      if (!input.trim()) return;
+
+      const result = document.getElementById('ai-result');
+      result.classList.remove('hidden');
+      result.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>正在解析...';
+
+      setTimeout(() => {
+        result.innerHTML = `
+          <div class="flex items-center gap-2 mb-2">
+            <i class="fas fa-check-circle text-green-500"></i>
+            <strong>解析成功</strong>
+          </div>
+          <div class="grid grid-cols-2 gap-2 text-xs">
+            <div>📅 日期：<span class="font-medium">2026-06-05</span></div>
+            <div>⏰ 时间：<span class="font-medium">14:00</span></div>
+            <div>🎯 角色：<span class="font-medium">一线支撑</span></div>
+            <div>👤 客户经理：<span class="font-medium">张总</span></div>
+            <div>📁 项目：<span class="font-medium">金融云平台升级</span></div>
+            <div>📊 类别：<span class="font-medium">项目支撑</span></div>
+          </div>
+        `;
+      }, 800);
+    }
+
+    function toggleUser(btn, enable) {
+      const row = btn.closest('tr');
+      const statusCell = row.querySelector('td:nth-child(4)');
+      if (enable) {
+        statusCell.innerHTML = '<span class="px-2 py-1 bg-green-100 text-green-700 rounded text-xs flex items-center w-fit gap-1"><i class="fas fa-check-circle text-xs"></i>启用</span>';
+        btn.textContent = '禁用';
+        btn.className = 'text-orange-500 hover:underline mr-2';
+        btn.onclick = function() { toggleUser(this, false); };
+      } else {
+        statusCell.innerHTML = '<span class="px-2 py-1 bg-gray-100 text-gray-500 rounded text-xs flex items-center w-fit gap-1"><i class="fas fa-ban text-xs"></i>禁用</span>';
+        btn.textContent = '启用';
+        btn.className = 'text-green-500 hover:underline mr-2';
+        btn.onclick = function() { toggleUser(this, true); };
+      }
+    }
+
+    // 项目选择联动客户和行业类别
+    function updateProjectBinding() {
+      const projectSelect = document.getElementById('project-select');
+      const customerInput = document.getElementById('customer-input');
+      const industrySelect = document.getElementById('industry-select');
+
+      const selectedOption = projectSelect.options[projectSelect.selectedIndex];
+      const customer = selectedOption.getAttribute('data-customer');
+      const industry = selectedOption.getAttribute('data-industry');
+
+      if (customer) {
+        customerInput.value = customer;
+      } else {
+        customerInput.value = '';
+      }
+
+      if (industry) {
+        industrySelect.value = industry;
+      }
+    }
+
+    // 查看记录筛选功能
+    function applyFilters() {
+      const name = document.getElementById('filter-name').value;
+      const project = document.getElementById('filter-project').value;
+      const category = document.getElementById('filter-category').value;
+      const role = document.getElementById('filter-role').value;
+      const startDate = document.getElementById('filter-start').value;
+      const endDate = document.getElementById('filter-end').value;
+
+      console.log('筛选条件:', { name, project, category, role, startDate, endDate });
+      alert('筛选功能已触发，请查看控制台输出筛选条件');
+    }
+
+    function resetFilters() {
+      document.getElementById('filter-name').value = '';
+      document.getElementById('filter-project').value = '';
+      document.getElementById('filter-category').value = '';
+      document.getElementById('filter-role').value = '';
+      document.getElementById('filter-start').value = '2026-06-01';
+      document.getElementById('filter-end').value = '2026-06-05';
+    }
+
+    // 权重编辑功能
+    let currentWeightEditBtn = null;
+
+    function openWeightEdit(btn) {
+      currentWeightEditBtn = btn;
+      const row = btn.closest('tr');
+      const category = row.querySelector('td:nth-child(6)').textContent;
+      const currentWeight = row.querySelector('td:nth-child(8) span').textContent;
+
+      document.getElementById('edit-weight-category').value = category;
+      document.getElementById('edit-weight-value').value = parseInt(currentWeight) || 0;
+
+      openModal('weight-edit-modal');
+    }
+
+    function saveWeightEdit() {
+      const newWeight = document.getElementById('edit-weight-value').value;
+      if (currentWeightEditBtn) {
+        const row = currentWeightEditBtn.closest('tr');
+        row.querySelector('td:nth-child(8) span').textContent = newWeight + 'c';
+      }
+      closeModal('weight-edit-modal');
+    }
+
+    // 客户/生态建档筛选功能
+    function applyPartyFilters() {
+      const search = document.getElementById('party-search').value;
+      const type = document.getElementById('filter-type').value;
+      const industry = document.getElementById('filter-party-industry').value;
+
+      console.log('客户筛选条件:', { search, type, industry });
+      alert('筛选功能已触发，请查看控制台输出筛选条件');
+    }
+
+    // 统计页面功能
+    function updateWeekStats() {
+      const start = document.getElementById('week-start').value;
+      const end = document.getElementById('week-end').value;
+      console.log('本周统计范围:', start, '至', end);
+    }
+
+    function updateMonthStats() {
+      const start = document.getElementById('month-start').value;
+      const end = document.getElementById('month-end').value;
+      console.log('本月统计范围:', start, '至', end);
+    }
+
+    function toggleMemberFilter(type, checkbox) {
+      const checkboxes = document.querySelectorAll('.' + type + '-member');
+      checkboxes.forEach(cb => {
+        cb.checked = checkbox.checked;
+      });
+    }
+
+    function exportWeekStats() {
+      alert('正在导出本周统计为Excel...');
+    }
+
+    function exportMonthStats() {
+      alert('正在导出本月统计为Excel...');
+    }
+
+    // 点击弹窗外部关闭
+    document.querySelectorAll('.modal').forEach(modal => {
+      modal.addEventListener('click', (e) => {
+        if (e.target === modal) closeModal(modal.id);
+      });
+    });
+
+    // 默认显示首页
+    showPage('dashboard');
+  </script>
+</body>
+</html>

@@ -35,6 +35,7 @@ export type WorkCategory = '内部部门需求对接' | '生态交流' | '简单
 export interface WorkRecord {
   id: string
   user_id: string
+  project_id?: string
   project_name: string
   customer_id: string
   industry: Industry

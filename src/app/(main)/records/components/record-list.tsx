@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useCallback } from 'react'
 import { createClient } from '@/lib/supabase/client'
-import { WorkRecord, UserRole } from '@/types'
+import { WorkRecord, UserRole, WorkCategory } from '@/types'
 import WeightEditModal from './weight-edit-modal'
 
 interface RecordListProps {
@@ -122,7 +122,7 @@ export default function RecordList({ currentUserId, role }: RecordListProps) {
       filtered = filtered.filter(r => r.project_id === selectedProject)
     }
     if (selectedCategory) {
-      filtered = filtered.filter(r => r.work_categories.includes(selectedCategory))
+      filtered = filtered.filter(r => r.work_categories.includes(selectedCategory as WorkCategory))
     }
     if (selectedSupportRole) {
       filtered = filtered.filter(r => r.support_role === selectedSupportRole)
@@ -288,7 +288,7 @@ export default function RecordList({ currentUserId, role }: RecordListProps) {
               {records.map((record) => (
                 <tr key={record.id} className="hover:bg-gray-50">
                   <td className="px-4 py-3 text-sm text-gray-900">{record.work_date}</td>
-                  <td className="px-4 py-3 text-sm text-gray-900">{(record as any).profiles?.name || '未知'}</td>
+                                   <td className="px-4 py-3 text-sm text-gray-900">{record.profiles?.name || '未知'}</td>
                   <td className="px-4 py-3 text-sm text-gray-900">{(record as any).parties?.name || '未知客户'}</td>
                   <td className="px-4 py-3 text-sm text-gray-900">{record.project_name}</td>
                   <td className="px-4 py-3 text-sm text-gray-600 max-w-xs truncate">{record.work_content}</td>
