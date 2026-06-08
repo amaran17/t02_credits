@@ -13,7 +13,7 @@ interface Project {
 
 interface ProjectSelectProps {
   value: string
-  onChange: (projectId: string, partyName: string, industry: string) => void
+  onChange: (projectId: string, partyId: string, partyName: string, industry: string) => void
 }
 
 export default function ProjectSelect({ value, onChange }: ProjectSelectProps) {
@@ -45,7 +45,7 @@ export default function ProjectSelect({ value, onChange }: ProjectSelectProps) {
       onChange={(e) => {
         const project = projects.find(p => p.id === e.target.value)
         if (project) {
-          onChange(project.id, project.party_name || '', project.industry)
+          onChange(project.id, project.party_id, project.party_name || '', project.industry)
         }
       }}
       disabled={loading}

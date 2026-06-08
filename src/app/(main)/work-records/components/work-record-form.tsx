@@ -24,6 +24,7 @@ interface WorkRecordFormProps {
 interface FormData {
   project_id: string
   project_name: string
+  customer_id: string
   customer: string
   industry: string
   stage: string
@@ -39,6 +40,7 @@ export default function WorkRecordForm({ onSuccess }: WorkRecordFormProps) {
   const [formData, setFormData] = useState<FormData>({
     project_id: '',
     project_name: '',
+    customer_id: '',
     customer: '',
     industry: '',
     stage: '',
@@ -200,7 +202,7 @@ export default function WorkRecordForm({ onSuccess }: WorkRecordFormProps) {
         user_id: session.user.id,
         project_id: formData.project_id,
         project_name: formData.project_name,
-        customer: formData.customer,
+        customer_id: formData.customer_id,
         industry: formData.industry,
         stage: formData.stage,
         customer_manager: formData.customer_manager,
@@ -220,6 +222,7 @@ export default function WorkRecordForm({ onSuccess }: WorkRecordFormProps) {
       setFormData({
         project_id: '',
         project_name: '',
+        customer_id: '',
         customer: '',
         industry: '',
         stage: '',
@@ -286,10 +289,11 @@ export default function WorkRecordForm({ onSuccess }: WorkRecordFormProps) {
         <label className="block text-sm font-medium text-gray-700">选择项目 *</label>
         <ProjectSelect
           value={formData.project_id}
-          onChange={(projectId, partyName, industry) => {
+          onChange={(projectId, partyId, partyName, industry) => {
             setFormData(prev => ({
               ...prev,
               project_id: projectId,
+              customer_id: partyId,
               customer: partyName,
               industry: industry,
             }))
