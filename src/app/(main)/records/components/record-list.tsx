@@ -3,6 +3,7 @@
 import { useEffect, useState, useCallback } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { WorkRecord, UserRole } from '@/types'
+import WeightEditModal from './weight-edit-modal'
 
 interface RecordListProps {
   currentUserId: string
@@ -29,16 +30,39 @@ const CATEGORY_COLORS: Record<string, string> = {
   '高层汇报/展厅讲解': 'bg-amber-100 text-amber-700',
 }
 
+const ALL_CATEGORIES = [
+  '内部部门需求对接',
+  '生态交流',
+  '简单方案',
+  '复杂方案',
+  '日常方案汇报',
+  '客户简单交流',
+  '招投标',
+  '流程支撑',
+  '方案审核',
+  '培训',
+  '内部会议',
+  '高层汇报/展厅讲解',
+]
+
 export default function RecordList({ currentUserId, role }: RecordListProps) {
   const [records, setRecords] = useState<WorkRecordWithParty[]>([])
+  const [allRecords, setAllRecords] = useState<WorkRecordWithParty[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [users, setUsers] = useState<Array<{ id: string; name: string }>>([])
+  const [projects, setProjects] = useState<Array<{ id: string; name: string }>>([])
 
-  // Filters for leaders
+  // Filters
   const [startDate, setStartDate] = useState('')
   const [endDate, setEndDate] = useState('')
   const [selectedUserId, setSelectedUserId] = useState('')
+  const [selectedProject, setSelectedProject] = useState('')
+  const [selectedCategory, setSelectedCategory] = useState('')
+  const [selectedSupportRole, setSelectedSupportRole] = useState('')
+
+  // Weight edit modal
+  const [editingRecord, setEditingRecord] = useState<WorkRecordWithParty | null>(null)
 
   const fetchRecords = useCallback(async () => {
     setLoading(true)
@@ -62,25 +86,12 @@ export default function RecordList({ currentUserId, role }: RecordListProps) {
       return
     }
     if (data) {
-      let filtered = data as WorkRecordWithParty[]
-
-      // Apply filters for leaders
-      if (role === 'leader') {
-        if (startDate) {
-          filtered = filtered.filter(r => r.work_date >= startDate)
-        }
-        if (endDate) {
-          filtered = filtered.filter(r => r.work_date <= endDate)
-        }
-        if (selectedUserId) {
-          filtered = filtered.filter(r => r.user_id === selectedUserId)
-        }
-      }
-
+      const filtered = data as WorkRecordWithParty[]
+      setAllRecords(filtered)
       setRecords(filtered)
     }
     setLoading(false)
-  }, [role, currentUserId, startDate, endDate, selectedUserId])
+  }, [role, currentUserId])
 
   const fetchUsers = async () => {
     const supabase = createClient()
@@ -88,26 +99,82 @@ export default function RecordList({ currentUserId, role }: RecordListProps) {
     if (data) setUsers(data)
   }
 
+  const fetchProjects = async () => {
+    const supabase = createClient()
+    const { data } = await supabase.from('projects').select('id, name').order('name')
+    if (data) setProjects(data)
+  }
+
+  // Apply filters client-side for leaders
+  const applyFilters = useCallback(() => {
+    let filtered = [...allRecords]
+
+    if (startDate) {
+      filtered = filtered.filter(r => r.work_date >= startDate)
+    }
+    if (endDate) {
+      filtered = filtered.filter(r => r.work_date <= endDate)
+    }
+    if (selectedUserId) {
+      filtered = filtered.filter(r => r.user_id === selectedUserId)
+    }
+    if (selectedProject) {
+      filtered = filtered.filter(r => r.project_id === selectedProject)
+    }
+    if (selectedCategory) {
+      filtered = filtered.filter(r => r.work_categories.includes(selectedCategory))
+    }
+    if (selectedSupportRole) {
+      filtered = filtered.filter(r => r.support_role === selectedSupportRole)
+    }
+
+    setRecords(filtered)
+  }, [allRecords, startDate, endDate, selectedUserId, selectedProject, selectedCategory, selectedSupportRole])
+
   useEffect(() => {
     fetchUsers()
+    fetchProjects()
     fetchRecords()
   }, [])
 
   useEffect(() => {
     if (role === 'leader') {
-      fetchRecords()
+      applyFilters()
     }
-  }, [role, fetchRecords])
+  }, [role, applyFilters])
+
+  const resetFilters = () => {
+    setStartDate('')
+    setEndDate('')
+    setSelectedUserId('')
+    setSelectedProject('')
+    setSelectedCategory('')
+    setSelectedSupportRole('')
+  }
+
+  const hasActiveFilters = startDate || endDate || selectedUserId || selectedProject || selectedCategory || selectedSupportRole
+
+  const handleWeightSave = (newWeight: number) => {
+    if (editingRecord) {
+      setRecords(prev =>
+        prev.map(r => r.id === editingRecord.id ? { ...r, work_weight: newWeight } : r)
+      )
+      setAllRecords(prev =>
+        prev.map(r => r.id === editingRecord.id ? { ...r, work_weight: newWeight } : r)
+      )
+    }
+    setEditingRecord(null)
+  }
 
   return (
     <div className="space-y-6">
       {/* Filters for leaders */}
       {role === 'leader' && (
-        <div className="bg-white rounded-lg shadow p-4">
+        <div className="bg-gray-50 rounded-lg shadow p-4">
           <h3 className="text-sm font-medium text-gray-700 mb-3">筛选条件</h3>
-          <div className="flex flex-wrap gap-4">
-            <div className="flex items-center gap-2">
-              <label className="text-sm text-gray-600">开始日期:</label>
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
+            <div className="flex flex-col gap-1">
+              <label className="text-xs text-gray-500">开始日期</label>
               <input
                 type="date"
                 value={startDate}
@@ -115,8 +182,8 @@ export default function RecordList({ currentUserId, role }: RecordListProps) {
                 className="px-3 py-1.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
             </div>
-            <div className="flex items-center gap-2">
-              <label className="text-sm text-gray-600">结束日期:</label>
+            <div className="flex flex-col gap-1">
+              <label className="text-xs text-gray-500">结束日期</label>
               <input
                 type="date"
                 value={endDate}
@@ -124,32 +191,71 @@ export default function RecordList({ currentUserId, role }: RecordListProps) {
                 className="px-3 py-1.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
             </div>
-            <div className="flex items-center gap-2">
-              <label className="text-sm text-gray-600">用户:</label>
+            <div className="flex flex-col gap-1">
+              <label className="text-xs text-gray-500">姓名</label>
               <select
                 value={selectedUserId}
                 onChange={(e) => setSelectedUserId(e.target.value)}
                 className="px-3 py-1.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
               >
-                <option value="">全部用户</option>
+                <option value="">全部</option>
                 {users.map(u => (
                   <option key={u.id} value={u.id}>{u.name || u.id}</option>
                 ))}
               </select>
             </div>
-            {(startDate || endDate || selectedUserId) && (
+            <div className="flex flex-col gap-1">
+              <label className="text-xs text-gray-500">项目</label>
+              <select
+                value={selectedProject}
+                onChange={(e) => setSelectedProject(e.target.value)}
+                className="px-3 py-1.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                <option value="">全部</option>
+                {projects.map(p => (
+                  <option key={p.id} value={p.id}>{p.name}</option>
+                ))}
+              </select>
+            </div>
+            <div className="flex flex-col gap-1">
+              <label className="text-xs text-gray-500">工作类别</label>
+              <select
+                value={selectedCategory}
+                onChange={(e) => setSelectedCategory(e.target.value)}
+                className="px-3 py-1.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                <option value="">全部</option>
+                {ALL_CATEGORIES.map(cat => (
+                  <option key={cat} value={cat}>{cat}</option>
+                ))}
+              </select>
+            </div>
+            <div className="flex flex-col gap-1">
+              <label className="text-xs text-gray-500">支撑角色</label>
+              <select
+                value={selectedSupportRole}
+                onChange={(e) => setSelectedSupportRole(e.target.value)}
+                className="px-3 py-1.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                <option value="">全部</option>
+                <option value="一线支撑">一线支撑</option>
+                <option value="二线支撑">二线支撑</option>
+              </select>
+            </div>
+          </div>
+          {hasActiveFilters && (
+            <div className="mt-3 flex items-center gap-3">
               <button
-                onClick={() => {
-                  setStartDate('')
-                  setEndDate('')
-                  setSelectedUserId('')
-                }}
+                onClick={resetFilters}
                 className="text-sm text-blue-500 hover:underline"
               >
-                清除筛选
+                重置筛选
               </button>
-            )}
-          </div>
+              <span className="text-sm text-gray-500">
+                共 {records.length} 条记录
+              </span>
+            </div>
+          )}
         </div>
       )}
 
@@ -164,70 +270,78 @@ export default function RecordList({ currentUserId, role }: RecordListProps) {
       ) : records.length === 0 ? (
         <div className="text-center py-12 text-gray-500">暂无记录</div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {records.map((record) => (
-            <div
-              key={record.id}
-              className="bg-white rounded-lg shadow p-5 hover:shadow-md transition-shadow"
-            >
-              {/* Project name */}
-              <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                {record.project_name}
-              </h3>
-
-              {/* Work content */}
-              <p className="text-sm text-gray-600 mb-3 line-clamp-2">
-                {record.work_content}
-              </p>
-
-              {/* Weight - prominent display */}
-              <div className="flex items-center gap-2 mb-3">
-                <span className="text-2xl font-bold text-blue-600">
-                  {record.work_weight}
-                </span>
-                <span className="text-sm text-gray-500">权重</span>
-              </div>
-
-              {/* Badges row */}
-              <div className="flex flex-wrap gap-1.5 mb-3">
-                <span className="px-2 py-0.5 bg-gray-100 text-gray-600 text-xs rounded">
-                  {record.industry}
-                </span>
-                <span className="px-2 py-0.5 bg-gray-100 text-gray-600 text-xs rounded">
-                  {record.stage}
-                </span>
-                <span className={`px-2 py-0.5 text-xs rounded ${
-                  record.support_role === '一线支撑'
-                    ? 'bg-green-100 text-green-700'
-                    : 'bg-orange-100 text-orange-700'
-                }`}>
-                  {record.support_role}
-                </span>
-              </div>
-
-              {/* Work categories */}
-              <div className="flex flex-wrap gap-1 mb-3">
-                {record.work_categories.map(cat => (
-                  <span
-                    key={cat}
-                    className={`px-2 py-0.5 text-xs rounded ${CATEGORY_COLORS[cat] || 'bg-gray-100 text-gray-600'}`}
-                  >
-                    {cat}
-                  </span>
-                ))}
-              </div>
-
-              {/* Footer: date and submitter */}
-              <div className="text-xs text-gray-400 pt-2 border-t">
-                <span>{record.work_date}</span>
-                <span className="mx-2">|</span>
-                <span>{(record as any).profiles?.name || '未知'}</span>
-                <span className="mx-2">|</span>
-                <span>{(record as any).parties?.name || '未知客户'}</span>
-              </div>
-            </div>
-          ))}
+        <div className="overflow-x-auto">
+          <table className="min-w-full bg-white rounded-lg shadow">
+            <thead className="bg-gray-50">
+              <tr>
+                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">日期</th>
+                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">解决方案</th>
+                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">客户</th>
+                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">项目</th>
+                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">工作内容</th>
+                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">类别</th>
+                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">角色</th>
+                <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">权重</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-gray-200">
+              {records.map((record) => (
+                <tr key={record.id} className="hover:bg-gray-50">
+                  <td className="px-4 py-3 text-sm text-gray-900">{record.work_date}</td>
+                  <td className="px-4 py-3 text-sm text-gray-900">{(record as any).profiles?.name || '未知'}</td>
+                  <td className="px-4 py-3 text-sm text-gray-900">{(record as any).parties?.name || '未知客户'}</td>
+                  <td className="px-4 py-3 text-sm text-gray-900">{record.project_name}</td>
+                  <td className="px-4 py-3 text-sm text-gray-600 max-w-xs truncate">{record.work_content}</td>
+                  <td className="px-4 py-3">
+                    <div className="flex flex-wrap gap-1">
+                      {record.work_categories.map(cat => (
+                        <span
+                          key={cat}
+                          className={`px-2 py-0.5 text-xs rounded ${CATEGORY_COLORS[cat] || 'bg-gray-100 text-gray-600'}`}
+                        >
+                          {cat}
+                        </span>
+                      ))}
+                    </div>
+                  </td>
+                  <td className="px-4 py-3">
+                    <span className={`px-2 py-0.5 text-xs rounded ${
+                      record.support_role === '一线支撑'
+                        ? 'bg-green-100 text-green-700'
+                        : 'bg-orange-100 text-orange-700'
+                    }`}>
+                      {record.support_role}
+                    </span>
+                  </td>
+                  <td className="px-4 py-3">
+                    <div className="flex items-center gap-2">
+                      <span className="text-lg font-bold text-blue-600">{record.work_weight}</span>
+                      {role === 'leader' && record.work_categories.includes('招投标') && (
+                        <button
+                          onClick={() => setEditingRecord(record)}
+                          className="text-xs text-blue-500 hover:underline"
+                        >
+                          修改
+                        </button>
+                      )}
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
+      )}
+
+      {/* Weight Edit Modal */}
+      {editingRecord && (
+        <WeightEditModal
+          recordId={editingRecord.id}
+          currentWeight={editingRecord.work_weight}
+          category="招投标"
+          onClose={() => setEditingRecord(null)}
+          onSave={handleWeightSave}
+        />
       )}
     </div>
   )
